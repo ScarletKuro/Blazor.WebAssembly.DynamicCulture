@@ -1,6 +1,6 @@
-﻿using System.Text.Json;
-using Microsoft.AspNetCore.Components;
+﻿using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop.WebAssembly;
+// ReSharper disable InconsistentNaming
 
 namespace Blazor.WebAssembly.DynamicCulture.Loader;
 

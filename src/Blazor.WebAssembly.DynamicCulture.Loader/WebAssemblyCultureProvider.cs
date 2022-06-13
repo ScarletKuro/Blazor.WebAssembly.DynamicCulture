@@ -6,6 +6,7 @@ using System.IO;
 using System.Runtime.Loader;
 using System.Threading.Tasks;
 using Microsoft.JSInterop;
+// ReSharper disable InconsistentNaming
 
 namespace Blazor.WebAssembly.DynamicCulture.Loader;
 

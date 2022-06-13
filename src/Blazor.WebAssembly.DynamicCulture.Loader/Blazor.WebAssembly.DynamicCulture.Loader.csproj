@@ -3,13 +3,36 @@
   <PropertyGroup>
 	<TargetFrameworks>net6.0</TargetFrameworks>
     <Nullable>enable</Nullable>
+    <IsPackable>true</IsPackable>
+    <IncludeSymbols>true</IncludeSymbols>
+    <Version>1.0.0</Version>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <Authors>ScarletKuro</Authors>
+    <Description>This package helps to load multiple resource asseemblies during the initial blazor wasm startup. Blazor wasm by default only downloads selected culture from CurrentCulture and if you change the culture dynamically later, you do have to reload the page to get new resource assemblies. With help of this package there is no such restriction.</Description>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/ScarletKuro/Blazor.WebAssembly.DynamicCulture</RepositoryUrl>
+    <PackageTags>Blazor, Culture, Localization, Localize, Resource, Resx, Loader</PackageTags>
+    <PackageIcon>dynamic-language-icon.png</PackageIcon>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
-
+  
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="6.0.5" />
+	  <None Include="..\..\dynamic-language-icon.png">
+	    <Pack>True</Pack>
+	    <PackagePath>\</PackagePath>
+	  </None>
+	  <None Include="..\..\README.md">
+	    <Pack>True</Pack>
+	    <PackagePath>\</PackagePath>
+	  </None>
   </ItemGroup>
-
+	
   <ItemGroup>
     <SupportedPlatform Include="browser" />
   </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="6.0.4" />
+  </ItemGroup>
+
 </Project>
