@@ -16,10 +16,7 @@ public static class WebAssemblyHostExtensions
         cultureProvider.ThrowIfCultureChangeIsUnsupported();
         if (supportedCultures is not null)
         {
-            foreach (var culture in supportedCultures)
-            {
-                await cultureProvider.LoadCurrentCultureResourcesAsync(culture);
-            }
+            await cultureProvider.LoadCurrentCultureResourcesAsync(supportedCultures);
         }
     }
 

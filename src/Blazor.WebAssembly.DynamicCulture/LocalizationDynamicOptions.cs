@@ -41,6 +41,8 @@ namespace Blazor.WebAssembly.DynamicCulture
             }
         }
 
+        public bool LoadAllCulturesAtOnce { get; set; } = true;
+
         /// <summary>
         /// Gets or sets a value indicating whether <see cref="LocalizationDynamicMiddleware"/> should set <see cref="CultureInfo.DefaultThreadCurrentCulture"/> for application automatically.
         /// Defaults to <c>false</c>;

@@ -16,7 +16,12 @@ public static class WebAssemblyHostExtensions
         var options = host.Services.GetRequiredService<IOptions<LocalizationDynamicOptions>>().Value;
         var localizationDynamicList = new LocalizationDynamicList(options);
 
-        return host.LoadDynamicCulturesAsync(localizationDynamicList);
+        if (options.LoadAllCulturesAtOnce)
+        {
+            return host.LoadDynamicCulturesAsync(localizationDynamicList);
+        }
+
+        return Task.CompletedTask;
     }
 
     public static async Task SetMiddlewareCulturesAsync(this WebAssemblyHost host)

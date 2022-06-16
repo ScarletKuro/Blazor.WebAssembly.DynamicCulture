@@ -6,6 +6,7 @@ using System.IO;
 using System.Runtime.Loader;
 using System.Threading.Tasks;
 using Microsoft.JSInterop;
+
 // ReSharper disable InconsistentNaming
 
 namespace Blazor.WebAssembly.DynamicCulture.Loader;
@@ -60,10 +61,9 @@ internal class WebAssemblyCultureProvider
         }
     }
 
-    public virtual async ValueTask LoadCurrentCultureResourcesAsync(CultureInfo cultureInfo)
+    public virtual async ValueTask LoadCurrentCultureResourcesAsync(IEnumerable<CultureInfo> cultureInfos)
     {
-        var culturesToLoad = GetCultures(cultureInfo);
-
+        List<string> culturesToLoad = GetCultures(cultureInfos);
         if (culturesToLoad.Count == 0)
         {
             return;
@@ -96,6 +96,18 @@ internal class WebAssemblyCultureProvider
             using var stream = new MemoryStream((byte[])assemblies[i]);
             AssemblyLoadContext.Default.LoadFromStream(stream);
         }
+    }
+
+    internal static List<string> GetCultures(IEnumerable<CultureInfo> cultureInfos)
+    {
+        var culturesToLoad = new List<string>();
+        foreach (CultureInfo cultureInfo in cultureInfos)
+        {
+            var cultures = GetCultures(cultureInfo);
+            culturesToLoad.AddRange(cultures);
+        }
+
+        return culturesToLoad;
     }
 
     internal static List<string> GetCultures(CultureInfo? cultureInfo)
