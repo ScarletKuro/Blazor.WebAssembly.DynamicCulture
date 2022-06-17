@@ -113,7 +113,7 @@ This example uses `LocalStorageCultureProvider`.
 
 ### Page example
 The following demonstrates the use of the localized Greeting string with IStringLocalizer<T>. The Razor markup @Loc["Greeting"] in the following example localizes the string keyed to the Greeting value, which is set in the preceding resource files.
-```
+```HTML
 @page "/culture-example-2"
 @inject IStringLocalizer<CultureExample2> Loc
 
