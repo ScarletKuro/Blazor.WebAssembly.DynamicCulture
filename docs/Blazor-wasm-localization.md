@@ -18,8 +18,8 @@ Currently missing.
 ### Register Services
 Blazor WASM
 ```CSharp
-	builder.Services.AddLocalization();
-	builder.Services.AddLocalizationDynamic(options =>
+    builder.Services.AddLocalization();
+    builder.Services.AddLocalizationDynamic(options =>
     {
         options.AddSupportedCultures("et", "ru");
         options.AddSupportedUICultures("et", "ru");
