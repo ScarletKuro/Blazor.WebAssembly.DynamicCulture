@@ -41,7 +41,12 @@ namespace Blazor.WebAssembly.DynamicCulture
             }
         }
 
-        public bool LoadAllCulturesAtOnce { get; set; } = true;
+        /// <summary>
+        /// Gets or sets a value indicating whether <see cref="Loader"/> should load all localization satellite assemblies for Blazor in order that refreshing page wasn't necessary.
+        /// This will get only cultures defined in <see cref="SupportedCultures"/> and <see cref="SupportedUICultures"/>.
+        /// Defaults to <c>true</c>;
+        /// </summary>
+        public bool LoadAllSatelliteCultureAssembliesAtOnce { get; set; } = true;
 
         /// <summary>
         /// Gets or sets a value indicating whether <see cref="LocalizationDynamicMiddleware"/> should set <see cref="CultureInfo.DefaultThreadCurrentCulture"/> for application automatically.

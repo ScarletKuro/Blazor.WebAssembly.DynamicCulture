@@ -16,7 +16,7 @@ public static class WebAssemblyHostExtensions
         var options = host.Services.GetRequiredService<IOptions<LocalizationDynamicOptions>>().Value;
         var localizationDynamicList = new LocalizationDynamicList(options);
 
-        if (options.LoadAllCulturesAtOnce)
+        if (options.LoadAllSatelliteCultureAssembliesAtOnce)
         {
             return host.LoadSatelliteCultureAssembliesCultureAsync(localizationDynamicList);
         }
