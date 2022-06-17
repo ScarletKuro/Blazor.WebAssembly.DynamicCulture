@@ -18,12 +18,8 @@
   
   <ItemGroup>
     <None Include="..\..\dynamic-language-icon.png">
-        <Pack>True</Pack>
-        <PackagePath>\</PackagePath>
-    </None>
-    <None Include="..\..\README.md">
-        <Pack>True</Pack>
-        <PackagePath>\</PackagePath>
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
     </None>
   </ItemGroup>
 	
@@ -33,6 +29,13 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="6.0.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>

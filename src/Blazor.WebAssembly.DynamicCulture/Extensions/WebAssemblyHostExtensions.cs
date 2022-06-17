@@ -18,7 +18,7 @@ public static class WebAssemblyHostExtensions
 
         if (options.LoadAllCulturesAtOnce)
         {
-            return host.LoadDynamicCulturesAsync(localizationDynamicList);
+            return host.LoadSatelliteCultureAssembliesCultureAsync(localizationDynamicList);
         }
 
         return Task.CompletedTask;

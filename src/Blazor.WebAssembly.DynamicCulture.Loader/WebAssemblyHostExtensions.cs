@@ -8,7 +8,7 @@ namespace Blazor.WebAssembly.DynamicCulture.Loader;
 
 public static class WebAssemblyHostExtensions
 {
-    public static async Task LoadDynamicCulturesAsync(this WebAssemblyHost host, IEnumerable<CultureInfo>? supportedCultures)
+    public static async Task LoadSatelliteCultureAssembliesCultureAsync(this WebAssemblyHost host, IEnumerable<CultureInfo>? supportedCultures)
     {
         ArgumentNullException.ThrowIfNull(host);
         WebAssemblyCultureProvider.Initialize();
@@ -20,19 +20,19 @@ public static class WebAssemblyHostExtensions
         }
     }
 
-    public static  Task LoadDynamicCulturesAsync(this WebAssemblyHost host, ILocalizationDynamicList localizationDynamicList)
+    public static Task LoadSatelliteCultureAssembliesCultureAsync(this WebAssemblyHost host, ILocalizationDynamicList localizationDynamicList)
     {
-        return LoadDynamicCulturesAsync(host, localizationDynamicList.GetAvailableCultures());
+        return LoadSatelliteCultureAssembliesCultureAsync(host, localizationDynamicList.GetAvailableCultures());
     }
 
-    public static Task RunWithLoadedCulturesAsync(this WebAssemblyHost host, ILocalizationDynamicList localizationDynamicList)
+    public static Task RunWithSatelliteCultureAssembliesAsync(this WebAssemblyHost host, ILocalizationDynamicList localizationDynamicList)
     {
-        return RunWithLoadedCulturesAsync(host, localizationDynamicList.GetAvailableCultures());
+        return RunWithSatelliteCultureAssembliesAsync(host, localizationDynamicList.GetAvailableCultures());
     }
 
-    public static async Task RunWithLoadedCulturesAsync(this WebAssemblyHost host, IEnumerable<CultureInfo>? supportedCultures)
+    public static async Task RunWithSatelliteCultureAssembliesAsync(this WebAssemblyHost host, IEnumerable<CultureInfo>? supportedCultures)
     {
-        await LoadDynamicCulturesAsync(host, supportedCultures);
+        await LoadSatelliteCultureAssembliesCultureAsync(host, supportedCultures);
         await host.RunAsync();
     }
 }
