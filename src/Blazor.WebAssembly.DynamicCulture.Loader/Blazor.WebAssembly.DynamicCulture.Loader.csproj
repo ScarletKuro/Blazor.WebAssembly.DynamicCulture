@@ -11,7 +11,7 @@
     <Description>This package helps to load multiple resource asseemblies during the initial blazor wasm startup. Blazor wasm by default only downloads selected culture from CurrentCulture and if you change the culture dynamically later, you do have to reload the page to get new resource assemblies. With help of this package there is no such restriction.</Description>
     <PackageReadmeFile>Loader.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/ScarletKuro/Blazor.WebAssembly.DynamicCulture</RepositoryUrl>
-    <PackageTags>Blazor, Culture, Localization, Localize, Resource, Resx, Loader</PackageTags>
+    <PackageTags>Blazor, Culture, Localization, Localize, Resource, Resx, Globalization, Loader</PackageTags>
     <PackageIcon>dynamic-language-icon.png</PackageIcon>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
