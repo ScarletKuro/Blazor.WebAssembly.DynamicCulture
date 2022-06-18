@@ -4,7 +4,9 @@
 [![GitHub](https://img.shields.io/github/license/ScarletKuro/Blazor.WebAssembly.DynamicCulture?color=594ae2&logo=github)](https://github.com/ScarletKuro/Blazor.WebAssembly.DynamicCulture/blob/master/LICENSE)
 
 This mimics almost the same functionality as `.UseRequestLocalization` for Blazor ServerSide but this is for Blazor WASM.
-This library is relaying on default `IStringLocalizer`,
+This library is relaying on default `IStringLocalizer`.
+
+Also it's using the Blazor.WebAssembly.DynamicCulture.Loader which means you don't need to refresh the page after the language change.
 
 ## Samples
 Currently missing.
