@@ -43,6 +43,7 @@
 
     private LanguageInfo? _currentLanguageInfo;
 
+    //You can also inject IOptions<LocalizationDynamicOptions and get your cultures from SupportedCultures / SupportedUICultures if you want to define your cultures in single place.
     private readonly LanguageInfo[] _supportedLanguages = {
          new("English", "English", new CultureInfo("en-US")),
          new("Russian", "Русский", new CultureInfo("ru")),
