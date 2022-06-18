@@ -69,6 +69,7 @@
             var findLanguage = FindLanguageByName(languageName);
             var cultureInfo = findLanguage.Culture;
             CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
+            //CultureInfo.DefaultThreadCurrentCulture = cultureInfo; <- in my case I do not want to change that, but in someone else scenario it might be desired.
             await LocalizationLocalStorageManager.SetBlazorCultureAsync(cultureInfo.Name);
             LocalizationService.InvokeLanguageChanged(cultureInfo);
         }
