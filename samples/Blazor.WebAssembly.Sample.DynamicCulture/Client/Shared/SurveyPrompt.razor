@@ -1,0 +1,29 @@
+﻿@using System.Text.RegularExpressions
+@inject IStringLocalizer<Translation> Localizer;
+
+<LanguageTrackProvider Component="this"/>
+
+<div class="alert alert-secondary mt-4">
+    <span class="oi oi-pencil me-2" aria-hidden="true"></span>
+    <strong>@Title</strong>
+    
+    @AsMarkdownToHtml(string.Format(Localizer["SurveyPrompt"], _surveyUrl));
+</div>
+
+@code {
+    // Demonstrates how a parent component can supply parameters
+    [Parameter]
+    public string? Title { get; set; }
+
+    private readonly string _surveyUrl = "https://go.microsoft.com/fwlink/?linkid=2137916";
+
+    public MarkupString AsMarkdownToHtml(string value)
+    {
+        value = Regex.Replace(
+            value,
+            @"\[(?<TXT>[^\]]+)\]\((?<URL>[^\)]+)\)",
+            m => "<a target=\"_blank\" href=\"" + m.Groups["URL"].Value + "\">" + m.Groups["TXT"].Value + "</a>");
+
+        return new MarkupString(value);
+    }
+}

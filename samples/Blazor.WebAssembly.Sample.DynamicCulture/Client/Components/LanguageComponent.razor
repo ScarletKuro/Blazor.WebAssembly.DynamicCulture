@@ -1,0 +1,78 @@
+﻿@using System.Globalization
+@using Blazor.WebAssembly.DynamicCulture.LocalizationManager
+
+
+@inject LocalizationLocalStorageManager LocalizationLocalStorageManager;
+@inject ILocalizationService LocalizationService;
+
+<select class="form-select" data-width="fit" @onchange="OnChangeCurrentLang">
+    @foreach (var language in _supportedLanguages)
+    {
+        @if (Equals(Culture, language.Culture)) //Find current language
+        {
+            <option selected="@language.NativeName" value="@language.Name">@language.NativeName</option>
+        }
+        else
+        {
+            <option value="@language.Name">@language.NativeName</option>
+        }
+    }
+    
+</select>
+
+@code {
+
+    /// <summary>
+    /// Wrapper for CultureInfo, just because CultureInfo in WASM doesn't support NativeName etc properties.
+    /// </summary>
+    public class LanguageInfo
+    {
+        public string Name { get; }
+
+        public string NativeName { get; }
+
+        public CultureInfo Culture { get; }
+
+        public LanguageInfo(string name, string nativeName, CultureInfo culture)
+        {
+            NativeName = nativeName;
+            Name = name;
+            Culture = culture;
+        }
+    }
+
+    private LanguageInfo? _currentLanguageInfo;
+
+    private readonly LanguageInfo[] _supportedLanguages = {
+         new("English", "English", new CultureInfo("en-US")),
+         new("Russian", "Русский", new CultureInfo("ru")),
+         new("Japanese", "日本語", new CultureInfo("ja"))
+     };
+
+    private LanguageInfo FindLanguageByName(string name)
+    {
+        foreach (LanguageInfo supportedLanguage in _supportedLanguages)
+        {
+            if (string.Equals(supportedLanguage.Name, name, StringComparison.OrdinalIgnoreCase))
+            {
+                return supportedLanguage;
+            }
+        }
+
+        throw new NotSupportedException($"Language with {name} is not supported.");
+    }
+
+    private async Task OnChangeCurrentLang(ChangeEventArgs args)
+    {
+        if (args.Value is string languageName)
+        {
+            var findLanguage = FindLanguageByName(languageName);
+            var cultureInfo = findLanguage.Culture;
+            CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
+            await LocalizationLocalStorageManager.SetBlazorCultureAsync(cultureInfo.Name);
+            LocalizationService.InvokeLanguageChanged(cultureInfo);
+        }
+    }
+
+    private CultureInfo Culture => CultureInfo.CurrentUICulture;
+}
