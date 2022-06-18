@@ -12,7 +12,7 @@ Also it's using the Blazor.WebAssembly.DynamicCulture.Loader which means you don
 ![gif](https://github.com/ScarletKuro/Blazor.WebAssembly.DynamicCulture/blob/master/gif/DynamicCulture.gif)
 
 ## Samples
-1. [Blazor.WebAssembly.Sample.DynamicCultur](https://github.com/ScarletKuro/Blazor.WebAssembly.DynamicCulture/tree/master/samples/Blazor.WebAssembly.Sample.DynamicCulture) - Minimal getting started project. Shows basic usage of `https://www.nuget.org/packages/Blazor.WebAssembly.DynamicCulture`.
+1. [Blazor.WebAssembly.Sample.DynamicCulture](https://github.com/ScarletKuro/Blazor.WebAssembly.DynamicCulture/tree/master/samples/Blazor.WebAssembly.Sample.DynamicCulture) - Minimal getting started project. Shows basic usage of `https://www.nuget.org/packages/Blazor.WebAssembly.DynamicCulture`.
 
 ## Getting Started
 
