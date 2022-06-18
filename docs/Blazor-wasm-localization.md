@@ -23,6 +23,7 @@ Blazor WASM
     builder.Services.AddLocalization();
     builder.Services.AddLocalizationDynamic(options =>
     {
+        options.SetDefaultCulture("en-US"); //Do not forget to specify your delfault culture, usually the neutral one is en-US
         options.AddSupportedCultures("et", "ru");
         options.AddSupportedUICultures("et", "ru");
     });
