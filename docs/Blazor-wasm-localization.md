@@ -8,8 +8,11 @@ This library is relaying on default `IStringLocalizer`.
 
 Also it's using the Blazor.WebAssembly.DynamicCulture.Loader which means you don't need to refresh the page after the language change.
 
+## Demonstration
+![gif](gif/DynamicCulture.gif)
+
 ## Samples
-Currently missing.
+1. [Blazor.WebAssembly.Sample.DynamicCultur](https://github.com/ScarletKuro/Blazor.WebAssembly.DynamicCulture/tree/master/samples/Blazor.WebAssembly.Sample.DynamicCulture) - Minimal getting started project. Shows basic usage of `https://www.nuget.org/packages/Blazor.WebAssembly.DynamicCulture`.
 
 ## Getting Started
 
