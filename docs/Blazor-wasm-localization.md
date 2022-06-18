@@ -20,7 +20,7 @@ Currently missing.
 ### Register Services
 Blazor WASM
 ```CSharp
-    builder.Services.AddLocalization();
+    builder.Services.AddLocalization(); //requires Microsoft.Extensions.Localization package
     builder.Services.AddLocalizationDynamic(options =>
     {
         options.SetDefaultCulture("en-US"); //Do not forget to specify your delfault culture, usually the neutral one is en-US

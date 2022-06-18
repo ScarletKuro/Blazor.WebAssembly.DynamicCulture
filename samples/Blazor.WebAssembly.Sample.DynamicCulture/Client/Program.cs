@@ -7,7 +7,7 @@ var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
-builder.Services.AddLocalization(); //requires Microsoft.Extensions.Localization
+builder.Services.AddLocalization(); //requires Microsoft.Extensions.Localization package
 builder.Services.AddLocalizationDynamic(options =>
 {
     //I want to ignore setting the CultureInfo.CurrentCulture and set only CultureInfo.CurrentUICulture, because for example if I change CurrentCulture then NumberDecimalSeparator will change to comma, but I want it to be a dot from en-US
