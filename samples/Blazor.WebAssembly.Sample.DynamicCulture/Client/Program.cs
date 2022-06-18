@@ -10,11 +10,13 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.
 builder.Services.AddLocalization(); //requires Microsoft.Extensions.Localization package
 builder.Services.AddLocalizationDynamic(options =>
 {
-    //I want to ignore setting the CultureInfo.CurrentCulture and set only CultureInfo.CurrentUICulture, because for example if I change CurrentCulture then NumberDecimalSeparator will change to comma, but I want it to be a dot from en-US
+    //I want to ignore setting the CultureInfo.CurrentCulture and set only CultureInfo.CurrentUICulture.
+    //for example, if I change CurrentCulture to Estonian then NumberDecimalSeparator will change to comma, but I want it to be a dot from en-US
     options.IgnoreCulture = true;
-    //Always set the default culture explicitly for WASM because for clients the default might be different than you expect  
+    //Always set the default culture explicitly for WASM because for clients the default might be different than you expect
     options.SetDefaultCulture("en-US");
     //Personally I specify only UI cultures, but not the AddSupportedCultures since I only want to change the UI looks, but if you also will use
+    //For this reason I also set the IgnoreCulture = true
     options.AddSupportedUICultures("ja", "ru");
 });
 
