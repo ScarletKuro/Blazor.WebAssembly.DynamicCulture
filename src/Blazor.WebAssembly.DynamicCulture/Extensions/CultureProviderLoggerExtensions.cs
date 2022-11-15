@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 // ReSharper disable InconsistentNaming
+// ReSharper disable once CheckNamespace
 
 namespace Blazor.WebAssembly.DynamicCulture;
 
