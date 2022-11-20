@@ -47,6 +47,7 @@ After the package is added, you need to add the following in your **_Imports.raz
 
 ### Add Components
 Add the following for each **components** / **pages** that needs dynamic cultures. It will listen for `LocalizationService.InvokeLanguageChanged` and call `StateHasChanged` for the corresponding component.
+
 For version **1.1.0** and below:
 ```HTML
 <LanguageTrackProvider Component="this"/>
