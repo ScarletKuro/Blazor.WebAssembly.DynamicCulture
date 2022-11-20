@@ -3,7 +3,7 @@
 
 @inject IStringLocalizer<Translation> Localizer;
 
-<LanguageTrackProvider Component="this"/>
+<LanguageTrackProvider OnInitializeEvent="provider => provider.RegisterComponent(this)" />
 <div class="page">
     <div class="sidebar">
         <NavMenu />

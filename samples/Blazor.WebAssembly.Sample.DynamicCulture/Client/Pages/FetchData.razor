@@ -4,7 +4,7 @@
 @inject HttpClient Http
 @inject IStringLocalizer<Translation> Localizer;
 
-<LanguageTrackProvider Component="this"/>
+<LanguageTrackProvider OnInitializeEvent="provider => provider.RegisterComponent(this)" />
 <PageTitle>Weather forecast</PageTitle>
 
 <h1>@Localizer["WeatherForecast"]</h1>

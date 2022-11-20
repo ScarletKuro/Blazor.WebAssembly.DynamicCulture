@@ -2,7 +2,7 @@
 
 @inject IStringLocalizer<Translation> Localizer;
 
-<LanguageTrackProvider Component="this"/>
+<LanguageTrackProvider OnInitializeEvent="provider => provider.RegisterComponent(this)" />
 <PageTitle>Index</PageTitle>
 
 <h1>@Localizer["HelloWorld"]</h1>

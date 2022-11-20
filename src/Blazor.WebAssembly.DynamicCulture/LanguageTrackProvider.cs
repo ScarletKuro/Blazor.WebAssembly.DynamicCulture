@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.Threading.Tasks;
 using Blazor.WebAssembly.DynamicCulture.Extensions;
 using Blazor.WebAssembly.DynamicCulture.Internals;
 using Blazor.WebAssembly.DynamicCulture.Services;
@@ -14,18 +15,23 @@ public class LanguageTrackProvider : ComponentBase, IDisposable
     [Inject] 
     protected ILocalizationService LanguageService { get; set; } = null!;
 
-    [EditorRequired]
-    [Parameter]
-    public ComponentBase? Component
+    protected override Task OnInitializedAsync()
     {
-        get => this;
-        set
+        return OnInitializeEvent.InvokeAsync(this);
+    }
+
+    [Parameter]
+    [EditorRequired]
+    public EventCallback<LanguageTrackProvider> OnInitializeEvent { get; set; }
+
+    public void RegisterComponent(ComponentBase? component)
+    {
+        if (component is null)
         {
-            if (value is not null)
-            {
-                _components.Add(value);
-            }
+            return;
         }
+
+        _components.Add(component);
     }
 
     protected override void OnAfterRender(bool firstRender)

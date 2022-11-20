@@ -47,8 +47,13 @@ After the package is added, you need to add the following in your **_Imports.raz
 
 ### Add Components
 Add the following for each **components** / **pages** that needs dynamic cultures. It will listen for `LocalizationService.InvokeLanguageChanged` and call `StateHasChanged` for the corresponding component.
+For version **1.1.0** and below:
 ```HTML
 <LanguageTrackProvider Component="this"/>
+```
+For version higher than **1.1.0**:
+```HTML
+<LanguageTrackProvider OnInitializeEvent="provider => provider.RegisterComponent(this)"/>
 ```
 ### Create your own LangugeSelector Component (optional, depending on your needs)
 This can be optional in case you don't want to have a language selector and want to take the langauge from query or header for example.

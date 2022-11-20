@@ -1,7 +1,7 @@
 ﻿@using System.Text.RegularExpressions
 @inject IStringLocalizer<Translation> Localizer;
 
-<LanguageTrackProvider Component="this"/>
+<LanguageTrackProvider OnInitializeEvent="provider => provider.RegisterComponent(this)" />
 
 <div class="alert alert-secondary mt-4">
     <span class="oi oi-pencil me-2" aria-hidden="true"></span>
