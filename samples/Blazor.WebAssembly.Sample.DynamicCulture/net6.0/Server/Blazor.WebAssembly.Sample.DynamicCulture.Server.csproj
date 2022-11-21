@@ -11,8 +11,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Shared\Blazor.WebAssembly.Sample.DynamicCulture.Shared.csproj" />
     <ProjectReference Include="..\Client\Blazor.WebAssembly.Sample.DynamicCulture.Client.csproj" />
-    <ProjectReference Include="..\Shared\Blazor.WebAssembly.Sample.DynamicCulture.Shared.csproj" />
   </ItemGroup>
 
 

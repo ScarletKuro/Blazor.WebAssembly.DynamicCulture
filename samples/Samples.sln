@@ -3,15 +3,25 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.2.32519.379
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blazor.WebAssembly.Sample.DynamicCulture.Server", "Blazor.WebAssembly.Sample.DynamicCulture\Server\Blazor.WebAssembly.Sample.DynamicCulture.Server.csproj", "{88DAAD74-B3C4-41D0-95C6-7958C4ABD9FE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blazor.WebAssembly.Sample.DynamicCulture.Server", "Blazor.WebAssembly.Sample.DynamicCulture\net6.0\Server\Blazor.WebAssembly.Sample.DynamicCulture.Server.csproj", "{88DAAD74-B3C4-41D0-95C6-7958C4ABD9FE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blazor.WebAssembly.Sample.DynamicCulture.Client", "Blazor.WebAssembly.Sample.DynamicCulture\Client\Blazor.WebAssembly.Sample.DynamicCulture.Client.csproj", "{07EB0ADF-0ED9-4FF5-8164-93543B944BE7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blazor.WebAssembly.Sample.DynamicCulture.Client", "Blazor.WebAssembly.Sample.DynamicCulture\net6.0\Client\Blazor.WebAssembly.Sample.DynamicCulture.Client.csproj", "{07EB0ADF-0ED9-4FF5-8164-93543B944BE7}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blazor.WebAssembly.Sample.DynamicCulture.Shared", "Blazor.WebAssembly.Sample.DynamicCulture\Shared\Blazor.WebAssembly.Sample.DynamicCulture.Shared.csproj", "{1A66AF9F-C1F3-4A39-99B5-2F7992EB5F50}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blazor.WebAssembly.DynamicCulture.Loader", "..\src\Blazor.WebAssembly.DynamicCulture.Loader\Blazor.WebAssembly.DynamicCulture.Loader.csproj", "{F59E08B0-105F-4FC0-8039-D79C33D52DAA}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blazor.WebAssembly.DynamicCulture", "..\src\Blazor.WebAssembly.DynamicCulture\Blazor.WebAssembly.DynamicCulture.csproj", "{A9CAF6F7-63DF-4A6D-8F4F-AFAE2197F8DD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{BE32E1D8-78CC-4FF5-A9E2-26D967857040}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "net6.0", "net6.0", "{27FAE415-6776-4236-B535-B72611553885}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "net7.0", "net7.0", "{1F709217-7A48-4673-A732-67E96F000CA9}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blazor.WebAssembly.Sample.DynamicCulture.Client", "Blazor.WebAssembly.Sample.DynamicCulture\net7.0\Client\Blazor.WebAssembly.Sample.DynamicCulture.Client.csproj", "{CAE5CCBE-EA9A-4841-B3EB-5EB804227B89}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blazor.WebAssembly.Sample.DynamicCulture.Server", "Blazor.WebAssembly.Sample.DynamicCulture\net7.0\Server\Blazor.WebAssembly.Sample.DynamicCulture.Server.csproj", "{EE682A14-DE0A-4445-9C7D-507459A0DFC5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,9 +49,26 @@ Global
 		{A9CAF6F7-63DF-4A6D-8F4F-AFAE2197F8DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A9CAF6F7-63DF-4A6D-8F4F-AFAE2197F8DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A9CAF6F7-63DF-4A6D-8F4F-AFAE2197F8DD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CAE5CCBE-EA9A-4841-B3EB-5EB804227B89}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CAE5CCBE-EA9A-4841-B3EB-5EB804227B89}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CAE5CCBE-EA9A-4841-B3EB-5EB804227B89}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CAE5CCBE-EA9A-4841-B3EB-5EB804227B89}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EE682A14-DE0A-4445-9C7D-507459A0DFC5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE682A14-DE0A-4445-9C7D-507459A0DFC5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EE682A14-DE0A-4445-9C7D-507459A0DFC5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE682A14-DE0A-4445-9C7D-507459A0DFC5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{88DAAD74-B3C4-41D0-95C6-7958C4ABD9FE} = {27FAE415-6776-4236-B535-B72611553885}
+		{07EB0ADF-0ED9-4FF5-8164-93543B944BE7} = {27FAE415-6776-4236-B535-B72611553885}
+		{1A66AF9F-C1F3-4A39-99B5-2F7992EB5F50} = {BE32E1D8-78CC-4FF5-A9E2-26D967857040}
+		{27FAE415-6776-4236-B535-B72611553885} = {BE32E1D8-78CC-4FF5-A9E2-26D967857040}
+		{1F709217-7A48-4673-A732-67E96F000CA9} = {BE32E1D8-78CC-4FF5-A9E2-26D967857040}
+		{CAE5CCBE-EA9A-4841-B3EB-5EB804227B89} = {1F709217-7A48-4673-A732-67E96F000CA9}
+		{EE682A14-DE0A-4445-9C7D-507459A0DFC5} = {1F709217-7A48-4673-A732-67E96F000CA9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {445F7626-0A95-4AA9-A8C8-AC991A1A0F3A}
