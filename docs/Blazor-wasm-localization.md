@@ -114,7 +114,7 @@ This example uses `LocalStorageCultureProvider`.
     private async Task SetCulture(CultureInfo cultureInfo)
     {
         CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
-		CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
+        CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
         await LocalizationLocalStorageManager.SetBlazorCultureAsync(cultureInfo.Name);
         LocalizationService.InvokeLanguageChanged(cultureInfo);
     }
@@ -127,7 +127,8 @@ This example uses `LocalStorageCultureProvider`.
 The following demonstrates the use of the localized Greeting string with IStringLocalizer<T>. The Razor markup @Loc["Greeting"] in the following example localizes the string keyed to the Greeting value, which is set in the preceding resource files.
 ```HTML
 @page "/culture-example-2"
-@inject IStringLocalizer<CultureExample2> Loc
+@* Translation - resx class with translations *@
+@inject IStringLocalizer<Translation> Loc
 
 <LanguageTrackProvider Component="this"/>
 <h2>Loc["Greeting"]</h2>
