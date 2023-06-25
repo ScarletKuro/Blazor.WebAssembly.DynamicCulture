@@ -3,10 +3,7 @@
 [![Nuget](https://img.shields.io/nuget/dt/Blazor.WebAssembly.DynamicCulture?color=ff4081&label=nuget%20downloads&logo=nuget)](https://www.nuget.org/packages/Blazor.WebAssembly.DynamicCulture/)
 [![GitHub](https://img.shields.io/github/license/ScarletKuro/Blazor.WebAssembly.DynamicCulture?color=594ae2&logo=github)](https://github.com/ScarletKuro/Blazor.WebAssembly.DynamicCulture/blob/master/LICENSE)
 
-This mimics almost the same functionality as `.UseRequestLocalization` for Blazor ServerSide but this is for Blazor WASM.
-This library is relaying on default `IStringLocalizer`.
-
-Also it's using the Blazor.WebAssembly.DynamicCulture.Loader which means you don't need to refresh the page after the language change.
+This library essentially replicates the functionality of `.UseRequestLocalization` for Blazor Server-Side(BSS), but it is specifically designed for Blazor WebAssembly (WASM). It relies on the default `IStringLocalizer` and utilizes the **Blazor.WebAssembly.DynamicCulture.Loader**, eliminating the need to refresh the page when switching languages.
 
 ## Demonstration
 ![gif](https://github.com/ScarletKuro/Blazor.WebAssembly.DynamicCulture/blob/master/gif/DynamicCulture.gif)
