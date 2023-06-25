@@ -3,7 +3,7 @@
 [![Nuget](https://img.shields.io/nuget/dt/Blazor.WebAssembly.DynamicCulture.Loader?color=ff4081&label=nuget%20downloads&logo=nuget)](https://www.nuget.org/packages/Blazor.WebAssembly.DynamicCulture.Loader/)
 [![GitHub](https://img.shields.io/github/license/ScarletKuro/Blazor.WebAssembly.DynamicCulture?color=594ae2&logo=github)](https://github.com/ScarletKuro/Blazor.WebAssembly.DynamicCulture/blob/master/LICENSE)
 
-Blazor WebAssembly only loads the resource assemblies during the initial app startup. So if you change the culture dynamically later, you do have to **reload** the page to get new resource assemblies. But this package adds the ability to load all localization satellite assemblies at once during startup and you do not need to refresh the page to get the new resouce assembly.
+Blazor WebAssembly loads the resource assemblies solely during the initial app startup. Consequently, if you wish to dynamically change the culture at a later point, you would need to reload the page in order to obtain the new resource assemblies. However, with the inclusion of this package, you gain the capability to load all localization satellite assemblies simultaneously during startup, eliminating the need to refresh the page in order to access the updated resource assembly.
 
 ## Getting Started
 ### Usage Example
