@@ -6,13 +6,16 @@ using System.IO;
 using System.Runtime.Loader;
 using System.Threading.Tasks;
 using Microsoft.JSInterop;
+#if NET8_0_OR_GREATER
+using System.Runtime.InteropServices.JavaScript;
+#endif
 
 // ReSharper disable InconsistentNaming
 
 namespace Blazor.WebAssembly.DynamicCulture.Loader;
 
 [UnconditionalSuppressMessage("ReflectionAnalysis", "IL2026", Justification = "This type loads resx files. We don't expect it's dependencies to be trimmed in the ordinary case.")]
-internal class WebAssemblyCultureProvider
+internal partial class WebAssemblyCultureProvider
 {
     internal const string GetSatelliteAssemblies = "window.Blazor._internal.getSatelliteAssemblies";
     internal const string ReadSatelliteAssemblies = "window.Blazor._internal.readSatelliteAssemblies";
@@ -60,7 +63,19 @@ internal class WebAssemblyCultureProvider
                 "To change culture dynamically during startup, set <BlazorWebAssemblyLoadAllGlobalizationData>true</BlazorWebAssemblyLoadAllGlobalizationData> in the application's project file.");
         }
     }
+    
+#if NET8_0_OR_GREATER
+    public virtual async ValueTask LoadCurrentCultureResourcesAsync(IEnumerable<CultureInfo> cultureInfos)
+    {
+        List<string> culturesToLoad = GetCultures(cultureInfos);
+        if (culturesToLoad.Count == 0)
+        {
+            return;
+        }
 
+        await WebAssemblyCultureProviderInterop.LoadSatelliteAssemblies(culturesToLoad.ToArray());
+    }
+#else
     public virtual async ValueTask LoadCurrentCultureResourcesAsync(IEnumerable<CultureInfo> cultureInfos)
     {
         List<string> culturesToLoad = GetCultures(cultureInfos);
@@ -99,6 +114,7 @@ internal class WebAssemblyCultureProvider
             AssemblyLoadContext.Default.LoadFromStream(stream);
         }
     }
+#endif
 
     internal static List<string> GetCultures(IEnumerable<CultureInfo> cultureInfos)
     {
@@ -135,4 +151,12 @@ internal class WebAssemblyCultureProvider
 
         return culturesToLoad;
     }
+
+#if NET8_0_OR_GREATER
+    private partial class WebAssemblyCultureProviderInterop
+    {
+        [JSImport("INTERNAL.loadSatelliteAssemblies")]
+        public static partial Task LoadSatelliteAssemblies(string[] culturesToLoad);
+    }
+#endif
 }
