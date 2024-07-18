@@ -13,15 +13,25 @@ namespace Blazor.WebAssembly.DynamicCulture.Loader;
 [UnconditionalSuppressMessage("ReflectionAnalysis", "IL2026", Justification = "This type loads resx files. We don't expect it's dependencies to be trimmed in the ordinary case.")]
 internal partial class WebAssemblyCultureProvider
 {
+#if !NET8_0_OR_GREATER
     private readonly IJSUnmarshalledRuntime _invoker;
+#endif
 
     // For unit testing.
+#if NET8_0_OR_GREATER
+    internal WebAssemblyCultureProvider(CultureInfo initialCulture, CultureInfo initialUICulture)
+    {
+        InitialCulture = initialCulture;
+        InitialUICulture = initialUICulture;
+    }
+#else
     internal WebAssemblyCultureProvider(IJSUnmarshalledRuntime invoker, CultureInfo initialCulture, CultureInfo initialUICulture)
     {
         _invoker = invoker;
         InitialCulture = initialCulture;
         InitialUICulture = initialUICulture;
     }
+#endif
 
     public static WebAssemblyCultureProvider? Instance { get; private set; }
 
@@ -31,10 +41,16 @@ internal partial class WebAssemblyCultureProvider
 
     internal static void Initialize()
     {
+#if NET8_0_OR_GREATER
+        Instance = new WebAssemblyCultureProvider(
+            initialCulture: CultureInfo.CurrentCulture,
+            initialUICulture: CultureInfo.CurrentUICulture);
+#else
         Instance = new WebAssemblyCultureProvider(
             DefaultWebAssemblyJSRuntime.Instance,
             initialCulture: CultureInfo.CurrentCulture,
             initialUICulture: CultureInfo.CurrentUICulture);
+#endif
     }
 
     public void ThrowIfCultureChangeIsUnsupported()
