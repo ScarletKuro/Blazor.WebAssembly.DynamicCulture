@@ -13,6 +13,25 @@ public static class LocalizationDynamicServiceCollectionExtensions
     /// Adds services and options for the localization.
     /// </summary>
     /// <param name="services">The <see cref="IServiceCollection"/> for adding services.</param>
+    /// <returns>The <see cref="IServiceCollection"/>.</returns>
+    public static IServiceCollection AddLocalizationDynamic(this IServiceCollection services)
+    {
+        ArgumentNullException.ThrowIfNull(services);
+
+        services.TryAddScoped<ILocalizationService, LocalizationService>();
+        services.TryAddScoped<LocalizationLocalStorageManager>();
+        services.TryAddScoped<LocalizationNavigatorManager>();
+        services.TryAddScoped<LocalizationQueryManager>();
+        services.TryAddScoped<LocalizationContextManager>();
+        services.TryAddScoped<LocalizationDynamicMiddleware>();
+
+        return services;
+    }
+
+    /// <summary>
+    /// Adds services and options for the localization.
+    /// </summary>
+    /// <param name="services">The <see cref="IServiceCollection"/> for adding services.</param>
     /// <param name="configureOptions">A delegate to configure the <see cref="LocalizationDynamicOptions"/>.</param>
     /// <returns>The <see cref="IServiceCollection"/>.</returns>
     public static IServiceCollection AddLocalizationDynamic(this IServiceCollection services, Action<LocalizationDynamicOptions> configureOptions)
@@ -20,12 +39,7 @@ public static class LocalizationDynamicServiceCollectionExtensions
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(configureOptions);
 
-        services.TryAddSingleton<ILocalizationService, LocalizationService>();
-        services.TryAddSingleton<LocalizationLocalStorageManager>();
-        services.TryAddSingleton<LocalizationNavigatorManager>();
-        services.TryAddSingleton<LocalizationQueryManager>();
-        services.TryAddSingleton<LocalizationContextManager>();
-        services.TryAddSingleton<LocalizationDynamicMiddleware>();
+        services.AddLocalizationDynamic();
 
         return services.Configure(configureOptions);
     }
@@ -41,12 +55,7 @@ public static class LocalizationDynamicServiceCollectionExtensions
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(configureOptions);
 
-        services.TryAddSingleton<ILocalizationService, LocalizationService>();
-        services.TryAddSingleton<LocalizationLocalStorageManager>();
-        services.TryAddSingleton<LocalizationNavigatorManager>();
-        services.TryAddSingleton<LocalizationQueryManager>();
-        services.TryAddSingleton<LocalizationContextManager>();
-        services.TryAddSingleton<LocalizationDynamicMiddleware>();
+        services.AddLocalizationDynamic();
 
         services.AddOptions<LocalizationDynamicOptions>().Configure(configureOptions);
 
