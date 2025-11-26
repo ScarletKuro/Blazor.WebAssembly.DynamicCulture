@@ -1,4 +1,5 @@
 ﻿#if NET8_0_OR_GREATER
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Runtime.InteropServices.JavaScript;
@@ -10,7 +11,14 @@ namespace Blazor.WebAssembly.DynamicCulture.Loader.Interop
     {
         public virtual async ValueTask LoadCurrentCultureResourcesAsync(IEnumerable<CultureInfo> cultureInfos)
         {
-            List<string> culturesToLoad = GetCultures(cultureInfos);
+            // TODO: In .NET11 there is already another change to WebAssemblyCultureProvider, so expecting another break in the future.
+#if NET10_0_OR_GREATER
+            // Technically, Microsoft already should have loaded those cultures via WebAssemblyCultureProvider https://github.com/dariatiurina/aspnetcore/blob/3801203e0cd7ba5fcb4c7bd3ea9b99b1590e9b2d/src/Components/WebAssembly/WebAssembly/src/Hosting/WebAssemblyCultureProvider.cs#L34
+            string[] excludeCultures = new[] { CultureInfo.CurrentUICulture.Name, CultureInfo.CurrentCulture.Name };
+#else
+            string[] excludeCultures = Array.Empty<string>();
+#endif
+            List<string> culturesToLoad = GetCultures(cultureInfos, excludeCultures);
             if (culturesToLoad.Count == 0)
             {
                 return;

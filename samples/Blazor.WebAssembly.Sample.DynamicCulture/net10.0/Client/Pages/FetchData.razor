@@ -1,0 +1,50 @@
+﻿@page "/fetchdata"
+@using Blazor.WebAssembly.Sample.DynamicCulture.Shared
+
+@inject HttpClient Http
+@inject IStringLocalizer<Translation> Localizer;
+
+<LanguageTrackProvider OnInitializeEvent="provider => provider.RegisterComponent(this)" />
+<PageTitle>Weather forecast</PageTitle>
+
+<h1>@Localizer["WeatherForecast"]</h1>
+
+<p>@Localizer["WeatherForecast_Description"]</p>
+
+@if (forecasts == null)
+{
+    <p><em>@Localizer["Loading"]</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>@Localizer["Date"]</th>
+                <th>@Localizer["TempC"]</th>
+                <th>@Localizer["TempF"]</th>
+                <th>@Localizer["Summary"]</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var forecast in forecasts)
+            {
+                <tr>
+                    <td>@forecast.Date.ToShortDateString()</td>
+                    <td>@forecast.TemperatureC</td>
+                    <td>@forecast.TemperatureF</td>
+                    <td>@Localizer[forecast.Summary!]</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private WeatherForecast[]? forecasts;
+
+    protected override async Task OnInitializedAsync()
+    {
+        forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("WeatherForecast");
+    }
+}
