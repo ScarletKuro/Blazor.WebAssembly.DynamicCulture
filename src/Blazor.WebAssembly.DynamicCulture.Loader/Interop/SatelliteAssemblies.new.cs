@@ -43,7 +43,7 @@ namespace Blazor.WebAssembly.DynamicCulture.Loader.Interop
 
         private static void AddCultureWithParents(HashSet<string> cultures, CultureInfo culture)
         {
-            while (culture != null && !ReferenceEquals(culture, CultureInfo.InvariantCulture))
+            while (!ReferenceEquals(culture, CultureInfo.InvariantCulture))
             {
                 cultures.Add(culture.Name);
 
