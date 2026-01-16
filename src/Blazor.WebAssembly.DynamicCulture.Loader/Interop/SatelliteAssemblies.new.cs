@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Runtime.InteropServices.JavaScript;
 using System.Threading.Tasks;
 
@@ -14,7 +15,7 @@ namespace Blazor.WebAssembly.DynamicCulture.Loader.Interop
             // TODO: In .NET11 there is already another change to WebAssemblyCultureProvider, so expecting another break in the future.
 #if NET10_0_OR_GREATER
             // Technically, Microsoft already should have loaded those cultures via WebAssemblyCultureProvider https://github.com/dariatiurina/aspnetcore/blob/3801203e0cd7ba5fcb4c7bd3ea9b99b1590e9b2d/src/Components/WebAssembly/WebAssembly/src/Hosting/WebAssemblyCultureProvider.cs#L34
-            string[] excludeCultures = new[] { CultureInfo.CurrentUICulture.Name, CultureInfo.CurrentCulture.Name };
+            string[] excludeCultures = GetExcludedCultures();
 #else
             string[] excludeCultures = Array.Empty<string>();
 #endif
@@ -25,6 +26,34 @@ namespace Blazor.WebAssembly.DynamicCulture.Loader.Interop
             }
 
             await LoadSatelliteAssemblies(culturesToLoad.ToArray());
+        }
+
+        private static string[] GetExcludedCultures()
+        {
+            var excludedCultures = new HashSet<string>();
+            
+            // Add CurrentUICulture and all its parents
+            AddCultureWithParents(excludedCultures, CultureInfo.CurrentUICulture);
+            
+            // Add CurrentCulture and all its parents (if different from CurrentUICulture)
+            AddCultureWithParents(excludedCultures, CultureInfo.CurrentCulture);
+            
+            return excludedCultures.ToArray();
+        }
+
+        private static void AddCultureWithParents(HashSet<string> cultures, CultureInfo culture)
+        {
+            while (!ReferenceEquals(culture, CultureInfo.InvariantCulture))
+            {
+                cultures.Add(culture.Name);
+
+                if (ReferenceEquals(culture.Parent, culture))
+                {
+                    break;
+                }
+
+                culture = culture.Parent;
+            }
         }
 
         [JSImport("INTERNAL.loadSatelliteAssemblies")]
