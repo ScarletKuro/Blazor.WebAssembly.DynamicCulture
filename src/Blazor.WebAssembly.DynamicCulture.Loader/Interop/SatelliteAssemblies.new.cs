@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Runtime.InteropServices.JavaScript;
 using System.Threading.Tasks;
 
@@ -29,7 +30,7 @@ namespace Blazor.WebAssembly.DynamicCulture.Loader.Interop
 
         private static string[] GetExcludedCultures()
         {
-            var excludedCultures = new List<string>();
+            var excludedCultures = new HashSet<string>();
             
             // Add CurrentUICulture and all its parents
             AddCultureWithParents(excludedCultures, CultureInfo.CurrentUICulture);
@@ -40,16 +41,11 @@ namespace Blazor.WebAssembly.DynamicCulture.Loader.Interop
             return excludedCultures.ToArray();
         }
 
-        private static void AddCultureWithParents(List<string> cultures, CultureInfo culture)
+        private static void AddCultureWithParents(HashSet<string> cultures, CultureInfo culture)
         {
-            var cultureSet = new HashSet<string>(cultures);
-            
             while (culture != null && !ReferenceEquals(culture, CultureInfo.InvariantCulture))
             {
-                if (cultureSet.Add(culture.Name))
-                {
-                    cultures.Add(culture.Name);
-                }
+                cultures.Add(culture.Name);
 
                 if (ReferenceEquals(culture.Parent, culture))
                 {
