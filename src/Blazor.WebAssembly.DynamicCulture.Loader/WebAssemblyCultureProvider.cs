@@ -75,6 +75,11 @@ internal partial class WebAssemblyCultureProvider
     
     public virtual async ValueTask LoadCurrentCultureResourcesAsync(IEnumerable<CultureInfo> cultureInfos)
     {
+        if (!OperatingSystem.IsBrowser())
+        {
+            throw new PlatformNotSupportedException("This method is only supported in the browser.");
+        }
+
 #if NET8_0_OR_GREATER
         var satelliteAssemblies = new SatelliteAssemblies();
 #else

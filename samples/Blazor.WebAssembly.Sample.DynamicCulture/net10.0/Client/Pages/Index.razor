@@ -1,0 +1,12 @@
+﻿@page "/"
+
+@inject IStringLocalizer<Translation> Localizer;
+
+<LanguageTrackProvider OnInitializeEvent="provider => provider.RegisterComponent(this)" />
+<PageTitle>Index</PageTitle>
+
+<h1>@Localizer["HelloWorld"]</h1>
+
+@Localizer["WelcomeToYourNewApp"]
+
+<SurveyPrompt Title="@Localizer["SurveyTitle"]" />
