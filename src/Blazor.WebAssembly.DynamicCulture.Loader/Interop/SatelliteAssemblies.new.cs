@@ -42,14 +42,16 @@ namespace Blazor.WebAssembly.DynamicCulture.Loader.Interop
 
         private static void AddCultureWithParents(List<string> cultures, CultureInfo culture)
         {
-            while (culture != null && !Equals(culture, CultureInfo.InvariantCulture))
+            var cultureSet = new HashSet<string>(cultures);
+            
+            while (culture != null && !ReferenceEquals(culture, CultureInfo.InvariantCulture))
             {
-                if (!cultures.Contains(culture.Name))
+                if (cultureSet.Add(culture.Name))
                 {
                     cultures.Add(culture.Name);
                 }
 
-                if (Equals(culture.Parent, culture))
+                if (ReferenceEquals(culture.Parent, culture))
                 {
                     break;
                 }
