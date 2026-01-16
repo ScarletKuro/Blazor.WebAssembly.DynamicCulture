@@ -62,7 +62,7 @@ var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 
 var host = builder.Build();
-await host.LoadSatelliteCultureAssembliesAsync(new[] 
+await host.LoadSatelliteCultureAssembliesCultureAsync(new[] 
 { 
     new CultureInfo("ru"), 
     new CultureInfo("et") 
