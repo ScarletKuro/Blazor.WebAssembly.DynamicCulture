@@ -15,11 +15,11 @@ namespace Blazor.WebAssembly.DynamicCulture.Loader.Interop
             // TODO: In .NET11 there is already another change to WebAssemblyCultureProvider, so expecting another break in the future.
 #if NET10_0_OR_GREATER
             // Technically, Microsoft already should have loaded those cultures via WebAssemblyCultureProvider https://github.com/dariatiurina/aspnetcore/blob/3801203e0cd7ba5fcb4c7bd3ea9b99b1590e9b2d/src/Components/WebAssembly/WebAssembly/src/Hosting/WebAssemblyCultureProvider.cs#L34
-            string[] excludeCultures = GetExcludedCultures();
+            var excludeCultures = GetExcludedCultures();
 #else
             string[] excludeCultures = Array.Empty<string>();
 #endif
-            List<string> culturesToLoad = GetCultures(cultureInfos, excludeCultures);
+            List<string> culturesToLoad = GetCultures(cultureInfos, excludeCultures.ToArray());
             if (culturesToLoad.Count == 0)
             {
                 return;
@@ -28,9 +28,9 @@ namespace Blazor.WebAssembly.DynamicCulture.Loader.Interop
             await LoadSatelliteAssemblies(culturesToLoad.ToArray());
         }
 
-        private static string[] GetExcludedCultures()
+        private static HashSet<string> GetExcludedCultures()
         {
-            var excludedCultures = new HashSet<string>();
+            var excludedCultures = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
             
             // Add CurrentUICulture and all its parents
             AddCultureWithParents(excludedCultures, CultureInfo.CurrentUICulture);
@@ -38,7 +38,7 @@ namespace Blazor.WebAssembly.DynamicCulture.Loader.Interop
             // Add CurrentCulture and all its parents (if different from CurrentUICulture)
             AddCultureWithParents(excludedCultures, CultureInfo.CurrentCulture);
             
-            return excludedCultures.ToArray();
+            return excludedCultures;
         }
 
         private static void AddCultureWithParents(HashSet<string> cultures, CultureInfo culture)

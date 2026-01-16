@@ -29,7 +29,7 @@ namespace Blazor.WebAssembly.DynamicCulture.Loader.Interop
             }
 
             // Now that we know the cultures we care about, let WebAssemblyResourceLoader (in JavaScript) load these
-            // assemblies. We effectively want to resovle a Task<byte[][]> but there is no way to express this
+            // assemblies. We effectively want to resolve a Task<byte[][]> but there is no way to express this
             // using interop. We'll instead do this in two parts:
             // getSatelliteAssemblies resolves when all satellite assemblies to be loaded in .NET are fetched and available in memory.
 #pragma warning disable CS0618 // Type or member is obsolete
