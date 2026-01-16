@@ -10,16 +10,20 @@ A lightweight package for loading satellite culture assemblies at startup in Bla
 
 **Blazor now provides a native way to load all satellite assemblies** in WebAssembly applications. You can configure this in your `index.html`:
 
+**Before:**
 ```html
-<!-- index.html -->
--<script src="_framework/blazor.webassembly.js"></script>
-+<script src="_framework/blazor.webassembly.js" autostart="false"></script>
+<script src="_framework/blazor.webassembly.js"></script>
+```
+
+**After:**
+```html
+<script src="_framework/blazor.webassembly.js" autostart="false"></script>
 <script>
-+   Blazor.start({ 
-+       configureRuntime: runtime => runtime.withConfig({ 
-+           loadAllSatelliteResources: true 
-+       }) 
-+   })
+   Blazor.start({ 
+       configureRuntime: runtime => runtime.withConfig({ 
+           loadAllSatelliteResources: true 
+       }) 
+   })
 </script>
 ```
 

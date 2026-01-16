@@ -10,16 +10,20 @@ Dynamic localization support for Blazor WebAssembly applications. This library r
 
 **Blazor now provides a native way to load all satellite assemblies** in WebAssembly applications. You can configure this in your `index.html`:
 
+**Before:**
 ```html
-<!-- index.html -->
--<script src="_framework/blazor.webassembly.js"></script>
-+<script src="_framework/blazor.webassembly.js" autostart="false"></script>
+<script src="_framework/blazor.webassembly.js"></script>
+```
+
+**After:**
+```html
+<script src="_framework/blazor.webassembly.js" autostart="false"></script>
 <script>
-+   Blazor.start({ 
-+       configureRuntime: runtime => runtime.withConfig({ 
-+           loadAllSatelliteResources: true 
-+       }) 
-+   })
+   Blazor.start({ 
+       configureRuntime: runtime => runtime.withConfig({ 
+           loadAllSatelliteResources: true 
+       }) 
+   })
 </script>
 ```
 
