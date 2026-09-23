@@ -15,5 +15,16 @@
     <ProjectReference Include="..\Client\Blazor.WebAssembly.Sample.DynamicCulture.Client.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Include="..\..\Common\Server\Controllers\**\*.cs" Link="Controllers\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="..\..\Common\Server\Pages\**\*.cs" Link="Pages\%(RecursiveDir)%(Filename)%(Extension)" />
+
+    <Content Include="..\..\Common\Server\Pages\**\*.cshtml" Link="Pages\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Content Include="..\..\Common\Server\appsettings.json" Link="appsettings.json" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\..\Common\Server\appsettings.Development.json" Link="appsettings.Development.json" CopyToOutputDirectory="PreserveNewest" />
+
+    <None Include="..\..\Common\Server\Properties\launchSettings.json" Link="Properties\launchSettings.json" />
+  </ItemGroup>
+
 
 </Project>

@@ -19,24 +19,30 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Resources\Translations\Translation.Designer.cs">
+    <Compile Include="..\..\Common\Client\Program.cs" Link="Program.cs" />
+    <Compile Include="..\..\Common\Client\Resources\Translations\Translation.Designer.cs" Link="Resources\Translations\Translation.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>Translation.resx</DependentUpon>
     </Compile>
-  </ItemGroup>
 
-  <ItemGroup>
-    <EmbeddedResource Update="Resources\Translations\Translation.resx">
+    <EmbeddedResource Include="..\..\Common\Client\Resources\Translations\Translation.resx" Link="Resources\Translations\Translation.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Translation.Designer.cs</LastGenOutput>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </EmbeddedResource>
-    <EmbeddedResource Update="Resources\Translations\Translation.ru.resx">
+    <EmbeddedResource Include="..\..\Common\Client\Resources\Translations\Translation.ru.resx" Link="Resources\Translations\Translation.ru.resx">
       <DependentUpon>Translation.resx</DependentUpon>
     </EmbeddedResource>
-	<EmbeddedResource Update="Resources\Translations\Translation.ja.resx">
+    <EmbeddedResource Include="..\..\Common\Client\Resources\Translations\Translation.ja.resx" Link="Resources\Translations\Translation.ja.resx">
       <DependentUpon>Translation.resx</DependentUpon>
-	</EmbeddedResource>
+    </EmbeddedResource>
+
+    <Content Include="..\..\Common\Client\_Imports.razor" Link="_Imports.razor" />
+    <Content Include="..\..\Common\Client\App.razor" Link="App.razor" />
+    <Content Include="..\..\Common\Client\Components\**\*" Link="Components\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Content Include="..\..\Common\Client\Pages\**\*" Link="Pages\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Content Include="..\..\Common\Client\Shared\**\*" Link="Shared\%(RecursiveDir)%(Filename)%(Extension)" />
+    <None Include="..\..\Common\Client\Properties\launchSettings.json" Link="Properties\launchSettings.json" />
   </ItemGroup>
 </Project>
