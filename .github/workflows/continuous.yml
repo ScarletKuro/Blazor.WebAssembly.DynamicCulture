@@ -1,0 +1,100 @@
+name: continuous
+
+on:
+  push:
+
+permissions:
+  contents: read
+
+env:
+  DOTNET_VERSION: 10.0.x
+  SOLUTION: Blazor.WebAssembly.DynamicCulture.slnx
+  TEST_PROJECT: tests/Blazor.WebAssembly.DynamicCulture.Tests/Blazor.WebAssembly.DynamicCulture.Tests.csproj
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  build-test-pack:
+    name: build-test-pack
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v6
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props', '**/*.targets', '**/*.slnx') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Restore
+        run: dotnet restore ${{ env.SOLUTION }}
+
+      - name: Verify whitespace format
+        run: dotnet format whitespace ${{ env.SOLUTION }} --verify-no-changes
+
+      - name: Verify style format
+        run: dotnet format style ${{ env.SOLUTION }} --verify-no-changes
+
+      - name: Build
+        run: dotnet build ${{ env.SOLUTION }} -c Release --no-restore
+
+      - name: Test with coverage
+        run: >-
+          dotnet test ${{ env.TEST_PROJECT }}
+          -c Release
+          --no-build
+          --coverage
+          --coverage-output-format cobertura
+          --results-directory TestResults
+
+      - name: Collect coverage reports
+        if: always()
+        run: |
+          mkdir -p coverage
+          i=0
+          for f in TestResults/*.cobertura.xml; do
+            [ -e "$f" ] || continue
+            i=$((i + 1))
+            cp "$f" "coverage/coverage-$i.cobertura.xml"
+          done
+          test "$i" -gt 0
+          ls -l coverage
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v7
+        with:
+          directory: ./coverage
+          fail_ci_if_error: false
+          flags: unittests
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Upload test results artifact
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-results
+          path: TestResults/**
+          retention-days: 7
+
+      - name: Pack Blazor.WebAssembly.DynamicCulture.Loader
+        run: dotnet pack src/Blazor.WebAssembly.DynamicCulture.Loader/Blazor.WebAssembly.DynamicCulture.Loader.csproj -c Release --no-build -o artifacts/packages /p:PackageVersion=0.0.1-ci.${{ github.run_number }}
+
+      - name: Pack Blazor.WebAssembly.DynamicCulture
+        run: dotnet pack src/Blazor.WebAssembly.DynamicCulture/Blazor.WebAssembly.DynamicCulture.csproj -c Release --no-build -o artifacts/packages /p:PackageVersion=0.0.1-ci.${{ github.run_number }}
+
+      - name: Upload packages artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: packages
+          path: artifacts/packages

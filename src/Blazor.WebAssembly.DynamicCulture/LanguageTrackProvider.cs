@@ -12,7 +12,7 @@ public class LanguageTrackProvider : ComponentBase, IDisposable
 {
     private readonly WeakRefCollection<ComponentBase> _components = new();
 
-    [Inject] 
+    [Inject]
     protected ILocalizationService LanguageService { get; set; } = null!;
 
     protected override Task OnInitializedAsync()

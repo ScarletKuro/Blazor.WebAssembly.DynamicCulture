@@ -1,5 +1,6 @@
 # Blazor.WebAssembly.DynamicCulture
 
+[![codecov](https://codecov.io/gh/ScarletKuro/Blazor.WebAssembly.DynamicCulture/graph/badge.svg?token=2LOR4XTYDO)](https://codecov.io/gh/ScarletKuro/Blazor.WebAssembly.DynamicCulture)
 [![Nuget](https://img.shields.io/nuget/v/Blazor.WebAssembly.DynamicCulture?color=ff4081&logo=nuget)](https://www.nuget.org/packages/Blazor.WebAssembly.DynamicCulture/)
 [![Nuget](https://img.shields.io/nuget/dt/Blazor.WebAssembly.DynamicCulture?color=ff4081&label=nuget%20downloads&logo=nuget)](https://www.nuget.org/packages/Blazor.WebAssembly.DynamicCulture/)
 [![GitHub](https://img.shields.io/github/license/ScarletKuro/Blazor.WebAssembly.DynamicCulture?color=594ae2&logo=github)](https://github.com/ScarletKuro/Blazor.WebAssembly.DynamicCulture/blob/master/LICENSE)

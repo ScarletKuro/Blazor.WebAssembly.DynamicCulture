@@ -72,7 +72,7 @@ internal partial class WebAssemblyCultureProvider
                 "To change culture dynamically during startup, set <BlazorWebAssemblyLoadAllGlobalizationData>true</BlazorWebAssemblyLoadAllGlobalizationData> in the application's project file.");
         }
     }
-    
+
     public virtual async ValueTask LoadCurrentCultureResourcesAsync(IEnumerable<CultureInfo> cultureInfos)
     {
         if (!OperatingSystem.IsBrowser())

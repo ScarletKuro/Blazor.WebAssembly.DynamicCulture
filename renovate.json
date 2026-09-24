@@ -1,0 +1,30 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "enabledManagers": [
+    "github-actions"
+  ],
+  "packageRules": [
+    {
+      "description": "Group and automerge GitHub Actions updates only",
+      "matchManagers": [
+        "github-actions"
+      ],
+      "matchDatasources": [
+        "github-tags",
+        "github-releases"
+      ],
+      "groupName": "GitHub Actions",
+      "groupSlug": "github-actions",
+      "automerge": true,
+      "automergeType": "pr",
+      "platformAutomerge": true
+    },
+    {
+      "description": "Ignore Docker image refs (e.g. dotnet/sdk) inside workflow files",
+      "matchDatasources": [
+        "docker"
+      ],
+      "enabled": false
+    }
+  ]
+}

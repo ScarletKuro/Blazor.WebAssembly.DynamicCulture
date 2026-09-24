@@ -1,0 +1,92 @@
+name: release
+
+on:
+  push:
+    tags:
+      - "[0-9]+.[0-9]+.[0-9]+"
+      - "[0-9]+.[0-9]+.[0-9]+-*"
+
+permissions:
+  contents: read
+  packages: write
+  id-token: write
+
+env:
+  DOTNET_VERSION: 10.0.x
+  SOLUTION: Blazor.WebAssembly.DynamicCulture.slnx
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  publish:
+    name: publish
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Validate tag format
+        run: |
+          if [[ ! "${GITHUB_REF_NAME}" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
+            echo "Tag '${GITHUB_REF_NAME}' is not a supported release tag."
+            exit 1
+          fi
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v6
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props', '**/*.targets', '**/*.slnx') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Extract version from tag
+        id: get_version
+        run: |
+          VERSION="${GITHUB_REF_NAME}"
+          echo "version=$VERSION"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Restore
+        run: dotnet restore ${{ env.SOLUTION }}
+
+      - name: Build
+        run: dotnet build ${{ env.SOLUTION }} -c Release --no-restore /p:Version=${{ steps.get_version.outputs.version }}
+
+      - name: Test
+        run: dotnet test ${{ env.SOLUTION }} -c Release --no-build
+
+      - name: Pack Blazor.WebAssembly.DynamicCulture.Loader
+        run: dotnet pack src/Blazor.WebAssembly.DynamicCulture.Loader/Blazor.WebAssembly.DynamicCulture.Loader.csproj -c Release --no-build -o artifacts/packages /p:PackageVersion=${{ steps.get_version.outputs.version }}
+
+      - name: Pack Blazor.WebAssembly.DynamicCulture
+        run: dotnet pack src/Blazor.WebAssembly.DynamicCulture/Blazor.WebAssembly.DynamicCulture.csproj -c Release --no-build -o artifacts/packages /p:PackageVersion=${{ steps.get_version.outputs.version }}
+
+      - name: List generated packages
+        run: ls -lh artifacts/packages
+
+      - name: NuGet login
+        id: login
+        uses: NuGet/login@v1
+        with:
+          user: ${{ secrets.NUGET_USER }}
+
+      - name: Publish to NuGet.org
+        run: dotnet nuget push "artifacts/packages/*.nupkg" --source https://api.nuget.org/v3/index.json --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" --skip-duplicate
+
+      - name: Publish to GitHub Packages
+        run: dotnet nuget push "artifacts/packages/*.nupkg" --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" --api-key "${{ secrets.GITHUB_TOKEN }}" --skip-duplicate
+
+      - name: Upload packages artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: packages-${{ steps.get_version.outputs.version }}
+          path: artifacts/packages

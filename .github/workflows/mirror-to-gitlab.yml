@@ -1,0 +1,68 @@
+name: Mirror to GitLab
+
+on:
+  push:
+  delete:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mirror-to-gitlab
+  cancel-in-progress: false
+
+env:
+  GITLAB_NAMESPACE: ScarletKuro
+
+jobs:
+  mirror:
+    name: Mirror repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Configure SSH
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.GITLAB_SSH_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+
+          test -n "$SSH_PRIVATE_KEY" || {
+            echo "::error::The GITLAB_SSH_PRIVATE_KEY secret is not configured."
+            exit 1
+          }
+
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keygen -y -f ~/.ssh/id_ed25519 > /dev/null
+
+          # Published at https://docs.gitlab.com/user/gitlab_com/#ssh-known_hosts-entries
+          printf '%s\n' \
+            'gitlab.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAfuCHKVTjquxvt6CM6tdG4SLp1Btn/nOeHHE5UOzRdf' \
+            > ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+
+      - name: Mirror repository to GitLab
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GIT_SSH_COMMAND: ssh -i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes
+        run: |
+          set -euo pipefail
+
+          REPO_NAME="${GITHUB_REPOSITORY#*/}"
+          GITLAB_REPO_NAME="${REPO_NAME//./-}"
+          SOURCE_URL="https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          TARGET_URL="git@gitlab.com:${GITLAB_NAMESPACE}/${GITLAB_REPO_NAME}.git"
+
+          echo "GitHub repository: ${GITHUB_REPOSITORY}"
+          echo "GitLab repository: ${GITLAB_NAMESPACE}/${GITLAB_REPO_NAME}"
+
+          git clone --mirror "$SOURCE_URL" repo.git
+          git -C repo.git remote set-url --push origin "$TARGET_URL"
+          git -C repo.git push --mirror origin
+
+          # Mirror Git LFS objects too. This is a no-op when the repository has none.
+          git -C repo.git lfs fetch --all origin
+          git -C repo.git lfs push --all "$TARGET_URL"
