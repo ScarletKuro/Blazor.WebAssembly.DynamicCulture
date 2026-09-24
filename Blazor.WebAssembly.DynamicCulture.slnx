@@ -1,0 +1,12 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/tests/">
+    <Project Path="tests/Blazor.WebAssembly.DynamicCulture.Tests/Blazor.WebAssembly.DynamicCulture.Tests.csproj" />
+  </Folder>
+  <Project Path="src/Blazor.WebAssembly.DynamicCulture.Loader/Blazor.WebAssembly.DynamicCulture.Loader.csproj" />
+  <Project Path="src/Blazor.WebAssembly.DynamicCulture/Blazor.WebAssembly.DynamicCulture.csproj" />
+</Solution>

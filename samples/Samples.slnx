@@ -1,0 +1,23 @@
+<Solution>
+  <Folder Name="/Examples/">
+    <Project Path="Blazor.WebAssembly.Sample.DynamicCulture/Shared/Blazor.WebAssembly.Sample.DynamicCulture.Shared.csproj" />
+  </Folder>
+  <Folder Name="/Examples/net10.0/">
+    <Project Path="Blazor.WebAssembly.Sample.DynamicCulture/net10.0/Client/Blazor.WebAssembly.Sample.DynamicCulture.Client.csproj" />
+    <Project Path="Blazor.WebAssembly.Sample.DynamicCulture/net10.0/Server/Blazor.WebAssembly.Sample.DynamicCulture.Server.csproj" />
+  </Folder>
+  <Folder Name="/Examples/net6.0/">
+    <Project Path="Blazor.WebAssembly.Sample.DynamicCulture/net6.0/Client/Blazor.WebAssembly.Sample.DynamicCulture.Client.csproj" />
+    <Project Path="Blazor.WebAssembly.Sample.DynamicCulture/net6.0/Server/Blazor.WebAssembly.Sample.DynamicCulture.Server.csproj" />
+  </Folder>
+  <Folder Name="/Examples/net7.0/">
+    <Project Path="Blazor.WebAssembly.Sample.DynamicCulture/net7.0/Client/Blazor.WebAssembly.Sample.DynamicCulture.Client.csproj" />
+    <Project Path="Blazor.WebAssembly.Sample.DynamicCulture/net7.0/Server/Blazor.WebAssembly.Sample.DynamicCulture.Server.csproj" />
+  </Folder>
+  <Folder Name="/Examples/net8.0/">
+    <Project Path="Blazor.WebAssembly.Sample.DynamicCulture/net8.0/Client/Blazor.WebAssembly.Sample.DynamicCulture.Client.csproj" />
+    <Project Path="Blazor.WebAssembly.Sample.DynamicCulture/net8.0/Server/Blazor.WebAssembly.Sample.DynamicCulture.Server.csproj" />
+  </Folder>
+  <Project Path="../src/Blazor.WebAssembly.DynamicCulture.Loader/Blazor.WebAssembly.DynamicCulture.Loader.csproj" />
+  <Project Path="../src/Blazor.WebAssembly.DynamicCulture/Blazor.WebAssembly.DynamicCulture.csproj" />
+</Solution>
