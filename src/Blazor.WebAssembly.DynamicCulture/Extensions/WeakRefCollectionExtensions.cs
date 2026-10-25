@@ -9,8 +9,7 @@ internal static class WeakRefCollectionExtensions
     {
         components.ForEach(component =>
         {
-            var handleEvent = component as IHandleEvent;
-            handleEvent?.HandleEventAsync(EventCallbackWorkItem.Empty, null);
+            ((IHandleEvent)component).HandleEventAsync(EventCallbackWorkItem.Empty, null);
         });
     }
 }
