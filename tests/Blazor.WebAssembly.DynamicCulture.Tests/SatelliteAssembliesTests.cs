@@ -16,10 +16,10 @@ public class SatelliteAssembliesTests
         for (var attempt = 0; attempt < 2; attempt++)
         {
             await Assert.ThrowsAsync<PlatformNotSupportedException>(() =>
-                loader.LoadCurrentCultureResourcesAsync(cultures).AsTask().WaitAsync(TimeSpan.FromSeconds(5)));
+                loader.LoadCurrentCultureResourcesAsync(cultures).AsTask().WaitAsync(TimeSpan.FromSeconds(5), Xunit.TestContext.Current.CancellationToken));
         }
 
-        await loader.LoadCurrentCultureResourcesAsync(Array.Empty<CultureInfo>()).AsTask().WaitAsync(TimeSpan.FromSeconds(5));
+        await loader.LoadCurrentCultureResourcesAsync(Array.Empty<CultureInfo>()).AsTask().WaitAsync(TimeSpan.FromSeconds(5), Xunit.TestContext.Current.CancellationToken);
     }
 
     [Theory]

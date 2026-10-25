@@ -7,9 +7,7 @@ internal static class WeakRefCollectionExtensions
 {
     public static void InvokeStateHasChanged(this WeakRefCollection<ComponentBase> components)
     {
-        components.ForEach(component =>
-        {
-            ((IHandleEvent)component).HandleEventAsync(EventCallbackWorkItem.Empty, null);
-        });
+        // ComponentBase implements IHandleEvent; this re-renders without needing access to StateHasChanged.
+        components.ForEach(component => ((IHandleEvent)component).HandleEventAsync(EventCallbackWorkItem.Empty, null));
     }
 }

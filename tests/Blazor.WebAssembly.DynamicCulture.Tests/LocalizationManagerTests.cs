@@ -100,7 +100,7 @@ public class LocalizationManagerTests
         var second = manager.InitializeAsync();
         Assert.False(manager.IsInitialized);
         runtime.Import.SetResult(module);
-        await Task.WhenAll(first, second).WaitAsync(TimeSpan.FromSeconds(5));
+        await Task.WhenAll(first, second).WaitAsync(TimeSpan.FromSeconds(5), Xunit.TestContext.Current.CancellationToken);
         await manager.DisposeAsync();
 
         Assert.Equal(1, runtime.ImportCount);
@@ -139,7 +139,7 @@ public class LocalizationManagerTests
         var disposal = manager.DisposeAsync().AsTask();
         Assert.False(disposal.IsCompleted);
         runtime.Import.SetResult(module);
-        await Task.WhenAll(initialization, disposal).WaitAsync(TimeSpan.FromSeconds(5));
+        await Task.WhenAll(initialization, disposal).WaitAsync(TimeSpan.FromSeconds(5), Xunit.TestContext.Current.CancellationToken);
 
         Assert.False(manager.IsInitialized);
         Assert.Equal(1, module.DisposeCount);
@@ -156,7 +156,7 @@ public class LocalizationManagerTests
 
         runtime.Import.SetException(new JSException("Import failed"));
         await Assert.ThrowsAsync<JSException>(() => initialization);
-        await disposal.WaitAsync(TimeSpan.FromSeconds(5));
+        await disposal.WaitAsync(TimeSpan.FromSeconds(5), Xunit.TestContext.Current.CancellationToken);
 
         Assert.False(manager.IsInitialized);
         await Assert.ThrowsAsync<ObjectDisposedException>(() => manager.InitializeAsync());
