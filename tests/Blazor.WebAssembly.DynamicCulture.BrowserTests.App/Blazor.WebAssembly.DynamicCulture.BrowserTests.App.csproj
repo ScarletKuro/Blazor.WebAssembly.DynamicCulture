@@ -17,4 +17,18 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="$(BrowserFrameworkVersion)" PrivateAssets="all" />
     <ProjectReference Include="../../src/Blazor.WebAssembly.DynamicCulture/Blazor.WebAssembly.DynamicCulture.csproj" />
   </ItemGroup>
+  <Target Name="WriteBrowserCoverageSourceMapping" AfterTargets="Build" Condition="'$(BrowserCoverage)' == 'true'">
+    <!-- Coverlet needs the compiler's source-root mappings to resolve CI PDB paths. -->
+    <MSBuild Projects="@(ProjectReference)"
+             Targets="InitializeSourceRootMappedPaths"
+             Properties="TargetFramework=$(TargetFramework)">
+      <Output TaskParameter="TargetOutputs" ItemName="_BrowserCoverageSourceRoot" />
+    </MSBuild>
+    <ItemGroup>
+      <_BrowserCoverageProject Include="@(_BrowserCoverageSourceRoot->'%(MSBuildSourceProjectFile)')" OriginalPath="%(Identity)" />
+      <_BrowserCoverageMapping Include="@(_BrowserCoverageProject->'%(Identity)|%(OriginalPath)=%(MappedPath)')" />
+    </ItemGroup>
+    <WriteLinesToFile File="$(TargetDir)browser-coverage-source-roots.txt"
+                      Lines="@(_BrowserCoverageMapping)" Overwrite="true" Encoding="UTF-8" WriteOnlyWhenDifferent="true" />
+  </Target>
 </Project>

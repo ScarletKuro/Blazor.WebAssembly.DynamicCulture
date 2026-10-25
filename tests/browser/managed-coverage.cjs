@@ -4,7 +4,18 @@ const path = require("node:path");
 const assemblies = ["Blazor.WebAssembly.DynamicCulture", "Blazor.WebAssembly.DynamicCulture.Loader"];
 const bin = path.resolve(__dirname, "../Blazor.WebAssembly.DynamicCulture.BrowserTests.App/bin/Release", process.env.BROWSER_TFM || "net10.0");
 
-exports.prepare = async page => {
+module.exports = async function verifyInstrumentation() {
+    if (!process.env.BROWSER_COVERAGE) return;
+    for (const assembly of assemblies) {
+        // This namespace is injected into the PE metadata by Coverlet. Check it
+        // before starting the suite, so a missing source mapping fails once.
+        if (!fs.readFileSync(path.join(bin, `${assembly}.dll`)).includes(Buffer.from("Coverlet.Core.Instrumentation.Tracker"))) {
+            throw new Error(`Coverlet did not instrument ${assembly}. Check the PDB source-root mapping passed to --source-mapping-file.`);
+        }
+    }
+};
+
+module.exports.prepare = async page => {
     if (!process.env.BROWSER_COVERAGE) return;
     await page.addInitScript(() => { globalThis.browserCoverage = true; });
     await page.route("**/__coverage/*.dll", async route => {
@@ -14,7 +25,7 @@ exports.prepare = async page => {
     });
 };
 
-exports.collect = async page => {
+module.exports.collect = async page => {
     if (!process.env.BROWSER_COVERAGE) return;
     const modules = await page.evaluate(() => DotNet.invokeMethodAsync("DynamicCultureBrowserTests", "GetCoverage"));
     if (modules.length !== assemblies.length) throw new Error("Missing browser coverage modules");

@@ -139,7 +139,8 @@ public static class BrowserTestApi
             typeof(Blazor.WebAssembly.DynamicCulture.Extensions.WebAssemblyHostExtensions).Assembly
         }.Select(assembly =>
         {
-            var tracker = assembly.GetTypes().Single(type => type.FullName!.StartsWith("Coverlet.Core.Instrumentation.Tracker."));
+            var tracker = assembly.GetTypes().SingleOrDefault(type => type.FullName!.StartsWith("Coverlet.Core.Instrumentation.Tracker."))
+                ?? throw new InvalidOperationException($"Coverlet tracker missing from {assembly.GetName().Name}. Verify browser instrumentation and the PDB source-root mapping.");
             return (object)new
             {
                 Name = assembly.GetName().Name,

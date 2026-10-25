@@ -5,6 +5,7 @@ if (!framework) throw new Error("Add the target framework to frameworks.json fir
 const project = path.resolve(__dirname, "../Blazor.WebAssembly.DynamicCulture.BrowserTests.App/Blazor.WebAssembly.DynamicCulture.BrowserTests.App.csproj");
 const artifacts = `../../artifacts/browser/${framework.tfm}${process.env.BROWSER_COVERAGE ? "/coverage" : ""}`;
 module.exports = defineConfig({
+    globalSetup: require.resolve("./managed-coverage.cjs"),
     testDir: __dirname,
     testMatch: "**/*.spec.cjs",
     timeout: 60000,

@@ -26,12 +26,14 @@ try {
         # Keep the ordinary compatibility run too: coverage serves instrumented PE
         # copies, whereas the normal run exercises the SDK's default Webcil output.
         & dotnet build tests/Blazor.WebAssembly.DynamicCulture.BrowserTests.App -c Release --nologo `
-            "-p:BrowserTargetFramework=$tfm" "-p:BrowserFrameworkVersion=$($framework.version)" -p:WasmEnableWebcil=false
+            "-p:BrowserTargetFramework=$tfm" "-p:BrowserFrameworkVersion=$($framework.version)" -p:WasmEnableWebcil=false `
+            -p:BrowserCoverage=true -p:ContinuousIntegrationBuild=true
         if ($LASTEXITCODE -ne 0) { throw "Coverage fixture build failed for $tfm." }
         $env:BROWSER_TFM = $tfm
         $env:BROWSER_COVERAGE = '1'
         & dotnet tool run coverlet "tests/Blazor.WebAssembly.DynamicCulture.BrowserTests.App/bin/Release/$tfm" `
             --target $node --targetargs 'tests/browser/node_modules/@playwright/test/cli.js test --config tests/browser/playwright.config.cjs' `
+            --source-mapping-file "tests/Blazor.WebAssembly.DynamicCulture.BrowserTests.App/bin/Release/$tfm/browser-coverage-source-roots.txt" `
             --include '[Blazor.WebAssembly.DynamicCulture*]*' --format cobertura --output "artifacts/coverage/browser/$tfm.cobertura.xml"
         if ($LASTEXITCODE -ne 0) { throw "Managed browser coverage tests failed for $tfm." }
     }
