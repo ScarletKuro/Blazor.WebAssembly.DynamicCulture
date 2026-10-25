@@ -33,3 +33,22 @@ bun test ./tests/browser/satellite-loader.test.ts
 ```
 
 The modern adapter still uses the runtime's internal satellite-loading API. It gives each operation private asset state and restores the framework's manifest synchronously after the native loader captures the assets. Tests against each runtime deliberately exercise this boundary so a future schema or scheduling change becomes an actionable CI failure. Successful per-asset promises are retained; failed operations are removed for retry, and outstanding registrations are drained before reporting an error. A managed lock serializes callers, including the legacy .NET 6/7 two-stage download/read API.
+
+## Managed browser coverage
+
+CI runs the compatibility suite a second time with Coverlet for every matrix entry. Locally, from the repository root:
+
+```powershell
+pwsh ./scripts/Test-BrowserCoverage.ps1
+pwsh ./scripts/Test-BrowserCoverage.ps1 -TargetFrameworks net6.0,net10.0
+```
+
+How it works:
+
+- The fixture is built with `WasmEnableWebcil=false` and `ContinuousIntegrationBuild=true`, so local and CI runs share the same `/_/` PDB paths. A build target writes MSBuild's source-root mappings for Coverlet's `--source-mapping-file`; without them Coverlet silently skips both libraries.
+- Coverlet instruments the two library DLLs in the fixture's output directory. A test-only `loadBootResource` callback serves those PE copies (bypassing integrity hashes); the rest of the boot is unchanged.
+- WASM cannot write Coverlet's hit files, so after each test the fixture returns its hit counters through JS interop and `managed-coverage.cjs` merges them into the host's hit files ([tracker format](https://github.com/coverlet-coverage/coverlet/blob/v10.0.0/src/coverlet.core/Instrumentation/ModuleTrackerTemplate.cs)). Playwright global setup fails early if the DLLs are not instrumented.
+
+Reports go to `artifacts/coverage/browser/<tfm>.cobertura.xml`; diagnostics to `artifacts/browser/<tfm>/coverage/`. Rebuild the fixture normally before running the ordinary compatibility suite again.
+
+The `verify-coverage` CI job merges browser, desktop and Bun reports, runs `scripts/Verify-Coverage.ps1` (95% combined production line coverage, 85% floor per host/interop file), then uploads everything to Codecov. To run it locally, point `-ReportDirectory` at a folder with all `*.cobertura.xml` files and Bun's `lcov.info` (run Bun from the repository root so paths are unambiguous). Uncovered lines are mostly non-browser guards and the code after `WebAssemblyHost.RunAsync`, which never returns.

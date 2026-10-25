@@ -67,6 +67,15 @@ jobs:
         env:
           BROWSER_TFM: ${{ matrix.tfm }}
         run: npm test
+      - name: Test with managed browser coverage
+        shell: pwsh
+        run: ./scripts/Test-BrowserCoverage.ps1 -TargetFrameworks '${{ matrix.tfm }}'
+      - name: Upload browser coverage
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage-${{ matrix.tfm }}
+          path: artifacts/coverage/browser/${{ matrix.tfm }}.cobertura.xml
+          if-no-files-found: error
       - name: Upload browser diagnostics
         if: always()
         uses: actions/upload-artifact@v7
@@ -107,11 +116,11 @@ jobs:
           bun-version: 1.4.4
 
       - name: Run Bun tests with coverage
-        working-directory: src/Blazor.WebAssembly.DynamicCulture
-        run: bun test --coverage --coverage-reporter=text --coverage-reporter=lcov --coverage-dir ../../artifacts/coverage/bun ./assets/LocalizationManagers.test.ts
-
-      - name: Test isolated satellite downloads
-        run: bun test ./tests/browser/satellite-loader.test.ts
+        run: >-
+          bun test --coverage --coverage-reporter=text --coverage-reporter=lcov
+          --coverage-dir artifacts/coverage/bun
+          ./src/Blazor.WebAssembly.DynamicCulture/assets/LocalizationManagers.test.ts
+          ./tests/browser/satellite-loader.test.ts
 
       - name: Verify whitespace format
         run: dotnet format whitespace ${{ env.SOLUTION }} --verify-no-changes
@@ -144,22 +153,14 @@ jobs:
           test "$i" -gt 0
           ls -l coverage
 
-      - name: Upload .NET coverage to Codecov
-        uses: codecov/codecov-action@v7
+      - name: Upload unit and TypeScript coverage
+        uses: actions/upload-artifact@v7
         with:
-          directory: ./coverage
-          fail_ci_if_error: false
-          flags: unittests
-          token: ${{ secrets.CODECOV_TOKEN }}
-
-      - name: Upload Bun coverage to Codecov
-        uses: codecov/codecov-action@v7
-        with:
-          files: artifacts/coverage/bun/lcov.info
-          disable_search: true
-          flags: bun
-          fail_ci_if_error: false
-          token: ${{ secrets.CODECOV_TOKEN }}
+          name: coverage-unit-and-typescript
+          path: |
+            coverage/*.cobertura.xml
+            artifacts/coverage/bun/lcov.info
+          if-no-files-found: error
 
       - name: Upload test results artifact
         if: always()
@@ -184,3 +185,25 @@ jobs:
         with:
           name: packages
           path: artifacts/packages
+
+  coverage:
+    name: verify-coverage
+    needs: [browser-tests, build-test-pack]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Download coverage reports
+        uses: actions/download-artifact@v8
+        with:
+          pattern: coverage-*
+          path: artifacts/coverage/combined
+          merge-multiple: true
+      - name: Verify production source coverage
+        shell: pwsh
+        run: ./scripts/Verify-Coverage.ps1 -ReportDirectory artifacts/coverage/combined
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v7
+        with:
+          directory: artifacts/coverage/combined
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}

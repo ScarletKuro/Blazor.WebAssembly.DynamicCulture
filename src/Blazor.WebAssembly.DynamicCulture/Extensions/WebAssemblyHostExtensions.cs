@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Blazor.WebAssembly.DynamicCulture.Internals;
 using Blazor.WebAssembly.DynamicCulture.Loader;
 using Blazor.WebAssembly.DynamicCulture.LocalizationManager;
@@ -13,6 +14,7 @@ public static class WebAssemblyHostExtensions
 {
     public static Task SetDynamicCulturesAsync(this WebAssemblyHost host)
     {
+        ArgumentNullException.ThrowIfNull(host);
         var options = host.Services.GetRequiredService<IOptions<LocalizationDynamicOptions>>().Value;
         var localizationDynamicList = new LocalizationDynamicList(options);
 
@@ -26,6 +28,7 @@ public static class WebAssemblyHostExtensions
 
     public static async Task SetMiddlewareCulturesAsync(this WebAssemblyHost host)
     {
+        ArgumentNullException.ThrowIfNull(host);
         var middleware = host.Services.GetRequiredService<LocalizationDynamicMiddleware>();
         var context = host.Services.GetRequiredService<LocalizationContextManager>();
 

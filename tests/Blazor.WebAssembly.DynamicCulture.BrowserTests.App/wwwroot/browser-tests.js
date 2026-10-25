@@ -5,6 +5,12 @@ globalThis.browserTests = {
     resources: null,
     runtime: null,
     retried: false,
+    loadBootResource(type, name) {
+        if (globalThis.browserCoverage && type === "assembly") {
+            const match = name.match(/^(Blazor\.WebAssembly\.DynamicCulture(?:\.Loader)?)(?:\.[\w-]+)?\.dll$/);
+            if (match) return fetch(new URL(`__coverage/${match[1]}.dll`, document.baseURI));
+        }
+    },
     getOptions: () => ({
         mode: query.get("mode") || "loader",
         cultures: (query.get("cultures") || "en-US,cs-CZ").split(","),

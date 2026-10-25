@@ -3,8 +3,11 @@
 @implements IDisposable
 @inject ILocalizationService Localization
 @inject Blazor.WebAssembly.DynamicCulture.LocalizationManager.LocalizationLocalStorageManager Storage
+@using Blazor.WebAssembly.DynamicCulture
 
 <h1 id="ready">Ready</h1>
+<LanguageTrackProvider OnInitializeEvent="TrackComponents" />
+<TrackedGreeting @ref="_trackedGreeting" />
 <p id="greeting">@BrowserTestApi.Resource(_uiCulture.Name)</p>
 <p id="culture">@CultureInfo.CurrentCulture.Name</p>
 <p id="ui-culture">@_uiCulture.Name</p>
@@ -15,6 +18,15 @@
 
 @code {
     private CultureInfo _uiCulture = CultureInfo.CurrentUICulture;
+    private LanguageTrackProvider _tracker = null!;
+    private TrackedGreeting _trackedGreeting = null!;
+
+    private void TrackComponents(LanguageTrackProvider tracker) => _tracker = tracker;
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender) _tracker.RegisterComponent(_trackedGreeting);
+    }
 
     protected override void OnInitialized() => Localization.LanguageChanged += OnLanguageChanged;
 

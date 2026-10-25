@@ -36,11 +36,15 @@ public static class WebAssemblyHostExtensions
 
     public static Task LoadSatelliteCultureAssembliesCultureAsync(this WebAssemblyHost host, ILocalizationDynamicList localizationDynamicList)
     {
+        ArgumentNullException.ThrowIfNull(host);
+        ArgumentNullException.ThrowIfNull(localizationDynamicList);
         return LoadSatelliteCultureAssembliesCultureAsync(host, localizationDynamicList.GetAvailableCultures());
     }
 
     public static Task RunWithSatelliteCultureAssembliesAsync(this WebAssemblyHost host, ILocalizationDynamicList localizationDynamicList)
     {
+        ArgumentNullException.ThrowIfNull(host);
+        ArgumentNullException.ThrowIfNull(localizationDynamicList);
         return RunWithSatelliteCultureAssembliesAsync(host, localizationDynamicList.GetAvailableCultures());
     }
 
