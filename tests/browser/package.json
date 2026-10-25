@@ -2,10 +2,12 @@
   "name": "dynamic-culture-browser-tests",
   "private": true,
   "scripts": {
+    "typecheck": "tsc --project ../../src/Blazor.WebAssembly.DynamicCulture.Loader/tsconfig.json",
     "test": "playwright test",
     "matrix": "node framework-matrix.cjs"
   },
   "devDependencies": {
-    "@playwright/test": "1.62.1"
+    "@playwright/test": "1.62.1",
+    "typescript": "5.9.3"
   }
 }

@@ -53,6 +53,9 @@ jobs:
         run: |
           npm ci
           npx playwright install --with-deps chromium
+      - name: Type-check satellite loader
+        working-directory: tests/browser
+        run: npm run typecheck
       - name: Build browser fixture
         run: >-
           dotnet build tests/Blazor.WebAssembly.DynamicCulture.BrowserTests.App

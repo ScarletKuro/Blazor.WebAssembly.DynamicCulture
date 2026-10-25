@@ -24,7 +24,9 @@ The tests cover current and sibling cultures, shared parents, duplicate input, s
 
 Failure artifacts are saved under `artifacts/browser/<tfm>/`: HTML and JUnit reports, Playwright traces, screenshots, and satellite-state attachments. CI uploads these even when a test fails. Each test uses a fresh browser context, avoiding cached resources or a prior test's runtime state.
 
-The JavaScript isolation adapter also has focused unit tests:
+The TypeScript isolation adapter in `src/Blazor.WebAssembly.DynamicCulture.Loader/assets/SatelliteAssemblies.ts` also has focused unit tests. Bun generates its browser JavaScript before static web assets are collected, using the same build integration as the main library. Generated JavaScript is ignored by Git and included in the NuGet package.
+
+Run `npm run typecheck` from `tests/browser` for strict type checking of the adapter. Browser CI runs this check before building the fixture.
 
 ```sh
 bun test ./tests/browser/satellite-loader.test.ts

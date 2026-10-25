@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { initializeLegacy, loadSatelliteAssemblies } from "../../src/Blazor.WebAssembly.DynamicCulture.Loader/wwwroot/SatelliteAssemblies.js";
+import { initializeLegacy, loadSatelliteAssemblies } from "../../src/Blazor.WebAssembly.DynamicCulture.Loader/assets/SatelliteAssemblies";
 
 function runtime(satellites: Record<string, unknown>, loader: (assets: any, cultures: string[]) => Promise<void>) {
     const resources = { satelliteResources: satellites };

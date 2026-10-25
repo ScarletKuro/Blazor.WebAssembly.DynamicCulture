@@ -1,31 +1,58 @@
+interface SatelliteAsset {
+    name: string;
+    pendingDownload?: unknown;
+    pendingDownloadInternal?: unknown;
+    buffer?: unknown;
+    [property: string]: unknown;
+}
+
+type CultureAssets = SatelliteAsset[] | Record<string, string>;
+type SatelliteResources = Record<string, CultureAssets>;
+
+interface SatelliteRuntime {
+    getConfig(): { resources?: { satelliteResources?: SatelliteResources } };
+    INTERNAL: { loadSatelliteAssemblies(cultures: string[]): Promise<void> };
+}
+
+// Unmarshalled interop passes managed arrays and objects as numeric handles.
+interface LegacySatelliteLoader {
+    getSatelliteAssemblies(cultures: number): number;
+    readSatelliteAssemblies(): number;
+}
+
+declare global {
+    var Blazor: { _internal: LegacySatelliteLoader };
+    var BlazorDynamicCultureLoader: LegacySatelliteLoader;
+}
+
 // Each .NET runtime has its own boot configuration and managed assembly registry.
-const runtimeLoads = new WeakMap();
+const runtimeLoads = new WeakMap<SatelliteRuntime, Map<string, Promise<void>>>();
 
 // .NET 6/7 replace readSatelliteAssemblies after every download. Unmarshalled
 // interop caches bound functions, so call through stable wrappers to read the latest batch.
-const legacyLoader = {
+const legacyLoader: LegacySatelliteLoader = {
     getSatelliteAssemblies: cultures => globalThis.Blazor._internal.getSatelliteAssemblies(cultures),
     readSatelliteAssemblies: () => globalThis.Blazor._internal.readSatelliteAssemblies()
 };
 
-export function initializeLegacy() {
+export function initializeLegacy(): void {
     globalThis.BlazorDynamicCultureLoader = legacyLoader;
 }
 
-export async function loadSatelliteAssemblies(runtime, cultures) {
+export async function loadSatelliteAssemblies(runtime: SatelliteRuntime, cultures: string[]): Promise<void> {
     const resources = runtime.getConfig().resources;
-    const satellites = resources?.satelliteResources;
-    if (!satellites) {
+    if (!resources?.satelliteResources) {
         return;
     }
+    const satellites = resources.satelliteResources;
 
     let loads = runtimeLoads.get(runtime);
     if (!loads) {
-        loads = new Map();
+        loads = new Map<string, Promise<void>>();
         runtimeLoads.set(runtime, loads);
     }
 
-    const pending = [];
+    const pending: Promise<void>[] = [];
     for (const culture of new Set(cultures)) {
         if (!Object.hasOwn(satellites, culture)) {
             continue;
@@ -33,7 +60,7 @@ export async function loadSatelliteAssemblies(runtime, cultures) {
 
         const entries = satellites[culture];
         // .NET 8/9 use dictionaries; .NET 10 uses arrays of mutable download assets.
-        const assets = Array.isArray(entries)
+        const assets: Array<[string, SatelliteAsset | string]> = Array.isArray(entries)
             ? entries.map(asset => [asset.name, asset])
             : Object.entries(entries);
 
@@ -41,20 +68,20 @@ export async function loadSatelliteAssemblies(runtime, cultures) {
             const key = `${culture}/${name}`;
             let load = loads.get(key);
             if (!load) {
-                let isolated;
-                if (Array.isArray(entries)) {
+                let isolated: CultureAssets;
+                if (typeof entry === "string") {
+                    isolated = { [name]: entry };
+                } else {
                     const asset = { ...entry };
                     delete asset.pendingDownload;
                     delete asset.pendingDownloadInternal;
                     delete asset.buffer;
                     isolated = [asset];
-                } else {
-                    isolated = { [name]: entry };
                 }
 
                 // The native loader eagerly captures its assets before returning its promise.
                 // Restore the framework's manifest synchronously, before downloads or other callers resume.
-                let operation;
+                let operation: Promise<void>;
                 try {
                     resources.satelliteResources = { [culture]: isolated };
                     operation = runtime.INTERNAL.loadSatelliteAssemblies([culture]);
@@ -77,7 +104,7 @@ export async function loadSatelliteAssemblies(runtime, cultures) {
     // Drain every operation before reporting failure, so a retry cannot overlap unfinished registrations.
     const results = await Promise.allSettled(pending);
     const failure = results.find(result => result.status === "rejected");
-    if (failure) {
+    if (failure?.status === "rejected") {
         throw failure.reason;
     }
 }
