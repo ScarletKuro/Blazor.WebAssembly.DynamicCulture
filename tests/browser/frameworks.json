@@ -1,0 +1,7 @@
+[
+  { "tfm": "net6.0", "version": "6.0.36", "sdk": "6.0.x" },
+  { "tfm": "net7.0", "version": "7.0.20", "sdk": "7.0.x" },
+  { "tfm": "net8.0", "version": "8.0.0", "sdk": "8.0.x" },
+  { "tfm": "net9.0", "version": "9.0.0", "sdk": "9.0.x" },
+  { "tfm": "net10.0", "version": "10.0.0", "sdk": "10.0.x" }
+]

@@ -5,6 +5,7 @@
     <Platform Name="x86" />
   </Configurations>
   <Folder Name="/tests/">
+    <Project Path="tests/Blazor.WebAssembly.DynamicCulture.BrowserTests.App/Blazor.WebAssembly.DynamicCulture.BrowserTests.App.csproj" />
     <Project Path="tests/Blazor.WebAssembly.DynamicCulture.Tests/Blazor.WebAssembly.DynamicCulture.Tests.csproj" />
   </Folder>
   <Project Path="src/Blazor.WebAssembly.DynamicCulture.Loader/Blazor.WebAssembly.DynamicCulture.Loader.csproj" />

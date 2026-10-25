@@ -1,0 +1,11 @@
+{
+  "name": "dynamic-culture-browser-tests",
+  "private": true,
+  "scripts": {
+    "test": "playwright test",
+    "matrix": "node framework-matrix.cjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.62.1"
+  }
+}

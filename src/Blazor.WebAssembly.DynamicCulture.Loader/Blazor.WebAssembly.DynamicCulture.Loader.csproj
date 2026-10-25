@@ -41,6 +41,7 @@
 	
   <ItemGroup>
     <SupportedPlatform Include="browser" />
+    <InternalsVisibleTo Include="Blazor.WebAssembly.DynamicCulture.Tests" />
   </ItemGroup>
 
   <ItemGroup>

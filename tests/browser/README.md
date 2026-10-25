@@ -1,0 +1,33 @@
+# Browser compatibility tests
+
+These tests build a real Blazor WebAssembly application referencing both library projects and run it in Chromium. Resource values must be correct before `RunAsync`, after startup, and after language switching. Tests also reject consumed-response reads and unhandled JavaScript exceptions, and verify the actual runtime and the target-framework attributes of both loaded library DLLs.
+
+`frameworks.json` is the compatibility matrix. `framework-matrix.cjs` compares it with both libraries' `TargetFrameworks`; CI fails if any supported TFM is missing. To add .NET 11, add its TFM to both libraries and an entry with its SDK and concrete package/runtime version to `frameworks.json`. The same tests run without another workflow job or a new sample application. Update the workflow's common SDK version when the solution requires a newer compiler.
+
+Install a .NET SDK that can build the solution (currently .NET 10), the ASP.NET Core runtime for the selected TFM, Node 24, and Chromium:
+
+```sh
+cd tests/browser
+npm ci
+npx playwright install chromium
+cd ../..
+dotnet build tests/Blazor.WebAssembly.DynamicCulture.BrowserTests.App -c Release -p:BrowserTargetFramework=net10.0 -p:BrowserFrameworkVersion=10.0.0
+```
+
+Then run `npm test` from `tests/browser`. Set `BROWSER_TFM` to select another matrix entry; its app must have been built with the matching properties. `PLAYWRIGHT_CHROMIUM` optionally specifies an existing browser executable. Playwright starts and stops the fixture's development server automatically. Do not run multiple TFM suites concurrently on the same checkout: they share the fixture's intermediate build directory and port 5290.
+
+To build and run every matrix entry sequentially, use `pwsh ./scripts/Test-BrowserCompatibility.ps1` from the repository root after installing the Node dependencies and browser. Pass `-TargetFrameworks net9.0,net10.0` to limit a local run.
+
+The browser runtime is pinned on the `Microsoft.NETCore.App` framework reference. Setting the global `RuntimeFrameworkVersion` property would also override SDK tool-package versions, which prevents modern SDKs from building the .NET 6/7 fixtures correctly.
+
+The tests cover current and sibling cultures, shared parents, duplicate input, selective loading, repeated/concurrent requests, middleware ordering, separate formatting/UI cultures, fallback, failed-download retries, loading after startup, notification-driven UI changes, and interoperability with native preloading. The native preload configuration test applies to .NET 8+; the remaining scenarios run on every supported TFM.
+
+Failure artifacts are saved under `artifacts/browser/<tfm>/`: HTML and JUnit reports, Playwright traces, screenshots, and satellite-state attachments. CI uploads these even when a test fails. Each test uses a fresh browser context, avoiding cached resources or a prior test's runtime state.
+
+The JavaScript isolation adapter also has focused unit tests:
+
+```sh
+bun test ./tests/browser/satellite-loader.test.ts
+```
+
+The modern adapter still uses the runtime's internal satellite-loading API. It gives each operation private asset state and restores the framework's manifest synchronously after the native loader captures the assets. Tests against each runtime deliberately exercise this boundary so a future schema or scheduling change becomes an actionable CI failure. Successful per-asset promises are retained; failed operations are removed for retry, and outstanding registrations are drained before reporting an error. A managed lock serializes callers, including the legacy .NET 6/7 two-stage download/read API.

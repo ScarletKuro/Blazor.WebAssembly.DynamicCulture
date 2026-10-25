@@ -40,6 +40,10 @@ By default, Blazor WebAssembly loads resource assemblies only for the current cu
 
 This package solves that problem by loading all specified localization satellite assemblies simultaneously during startup, eliminating the need for page reloads when switching cultures.
 
+Requested cultures and parent cultures are loaded once per runtime, including the current culture. Calls may overlap or be repeated, and failed downloads can be retried. The loader also supports requesting additional cultures after the host has started. On .NET 8+, it isolates download state from the framework's own satellite loader, preventing consumed-response errors on .NET 10.
+
+Compatibility is verified in Chromium for every supported target framework. See [the browser tests](../tests/browser/README.md) for the version matrix and instructions for adding future TFMs.
+
 ## 🚀 Getting Started
 
 ### Installation

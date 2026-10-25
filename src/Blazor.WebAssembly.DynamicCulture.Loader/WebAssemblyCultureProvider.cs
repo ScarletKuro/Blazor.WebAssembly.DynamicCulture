@@ -39,7 +39,7 @@ internal partial class WebAssemblyCultureProvider
 
     public CultureInfo InitialUICulture { get; }
 
-    internal static void Initialize()
+    internal static void Initialize(IJSRuntime jsRuntime)
     {
 #if NET8_0_OR_GREATER
         Instance = new WebAssemblyCultureProvider(
@@ -47,7 +47,7 @@ internal partial class WebAssemblyCultureProvider
             initialUICulture: CultureInfo.CurrentUICulture);
 #else
         Instance = new WebAssemblyCultureProvider(
-            DefaultWebAssemblyJSRuntime.Instance,
+            (IJSUnmarshalledRuntime)jsRuntime,
             initialCulture: CultureInfo.CurrentCulture,
             initialUICulture: CultureInfo.CurrentUICulture);
 #endif

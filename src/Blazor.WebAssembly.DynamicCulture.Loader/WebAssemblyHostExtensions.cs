@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.JSInterop;
 
 namespace Blazor.WebAssembly.DynamicCulture.Loader;
 
@@ -11,7 +13,7 @@ public static class WebAssemblyHostExtensions
     public static async Task LoadSatelliteCultureAssembliesCultureAsync(this WebAssemblyHost host, IEnumerable<CultureInfo>? supportedCultures)
     {
         ArgumentNullException.ThrowIfNull(host);
-        WebAssemblyCultureProvider.Initialize();
+        WebAssemblyCultureProvider.Initialize(host.Services.GetRequiredService<IJSRuntime>());
         var cultureProvider = WebAssemblyCultureProvider.Instance!;
         cultureProvider.ThrowIfCultureChangeIsUnsupported();
         if (supportedCultures is not null)

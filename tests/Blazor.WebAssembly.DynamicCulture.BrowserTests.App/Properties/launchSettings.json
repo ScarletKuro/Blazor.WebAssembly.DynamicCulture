@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "Blazor.WebAssembly.DynamicCulture.BrowserTests.App": {
+      "commandName": "Project",
+      "launchBrowser": false,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "http://127.0.0.1:5290"
+    }
+  }
+}
