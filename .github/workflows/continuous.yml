@@ -2,6 +2,8 @@ name: continuous
 
 on:
   push:
+  pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -14,6 +16,65 @@ env:
   DOTNET_CLI_TELEMETRY_OPTOUT: true
 
 jobs:
+  browser-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v7
+      - name: Discover supported target frameworks
+        id: matrix
+        run: echo "matrix=$(node tests/browser/framework-matrix.cjs)" >> "$GITHUB_OUTPUT"
+
+  browser-tests:
+    name: browser (${{ matrix.tfm }})
+    needs: browser-matrix
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.browser-matrix.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v7
+      - name: Setup .NET SDK and target runtime
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: |
+            ${{ matrix.sdk }}
+            ${{ env.DOTNET_VERSION }}
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: tests/browser/package-lock.json
+      - name: Install browser tests
+        working-directory: tests/browser
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+      - name: Type-check satellite loader
+        working-directory: tests/browser
+        run: npm run typecheck
+      - name: Build browser fixture
+        run: >-
+          dotnet build tests/Blazor.WebAssembly.DynamicCulture.BrowserTests.App
+          -c Release
+          -p:BrowserTargetFramework=${{ matrix.tfm }}
+          -p:BrowserFrameworkVersion=${{ matrix.version }}
+      - name: Test in Chromium
+        working-directory: tests/browser
+        env:
+          BROWSER_TFM: ${{ matrix.tfm }}
+        run: npm test
+      - name: Upload browser diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: browser-${{ matrix.tfm }}
+          path: artifacts/browser/${{ matrix.tfm }}/
+          retention-days: 7
+
   build-test-pack:
     name: build-test-pack
     runs-on: ubuntu-latest
@@ -48,6 +109,9 @@ jobs:
       - name: Run Bun tests with coverage
         working-directory: src/Blazor.WebAssembly.DynamicCulture
         run: bun test --coverage --coverage-reporter=text --coverage-reporter=lcov --coverage-dir ../../artifacts/coverage/bun ./assets/LocalizationManagers.test.ts
+
+      - name: Test isolated satellite downloads
+        run: bun test ./tests/browser/satellite-loader.test.ts
 
       - name: Verify whitespace format
         run: dotnet format whitespace ${{ env.SOLUTION }} --verify-no-changes

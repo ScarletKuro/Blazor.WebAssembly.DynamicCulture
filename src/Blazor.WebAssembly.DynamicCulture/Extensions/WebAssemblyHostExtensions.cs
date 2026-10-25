@@ -26,11 +26,11 @@ public static class WebAssemblyHostExtensions
 
     public static async Task SetMiddlewareCulturesAsync(this WebAssemblyHost host)
     {
-        await host.SetDynamicCulturesAsync();
         var middleware = host.Services.GetRequiredService<LocalizationDynamicMiddleware>();
         var context = host.Services.GetRequiredService<LocalizationContextManager>();
 
         await middleware.Invoke(context);
+        await host.SetDynamicCulturesAsync();
     }
 
     public static async Task RunWithCultureMiddlewareAsync(this WebAssemblyHost host)

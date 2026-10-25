@@ -67,6 +67,9 @@ jobs:
         working-directory: src/Blazor.WebAssembly.DynamicCulture
         run: bun test ./assets/LocalizationManagers.test.ts
 
+      - name: Test isolated satellite downloads
+        run: bun test ./tests/browser/satellite-loader.test.ts
+
       - name: Build
         run: dotnet build ${{ env.SOLUTION }} -c Release --no-restore /p:Version=${{ steps.get_version.outputs.version }}
 

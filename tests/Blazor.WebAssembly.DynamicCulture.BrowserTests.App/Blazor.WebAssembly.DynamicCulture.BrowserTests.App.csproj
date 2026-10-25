@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+  <PropertyGroup>
+    <BrowserTargetFramework Condition="'$(BrowserTargetFramework)' == ''">net10.0</BrowserTargetFramework>
+    <BrowserFrameworkVersion Condition="'$(BrowserFrameworkVersion)' == ''">10.0.0</BrowserFrameworkVersion>
+    <TargetFramework>$(BrowserTargetFramework)</TargetFramework>
+    <RootNamespace>DynamicCultureBrowserTests</RootNamespace>
+    <AssemblyName>DynamicCultureBrowserTests</AssemblyName>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <IsPackable>false</IsPackable>
+    <BlazorWebAssemblyLoadAllGlobalizationData>true</BlazorWebAssemblyLoadAllGlobalizationData>
+  </PropertyGroup>
+  <ItemGroup>
+    <FrameworkReference Update="Microsoft.NETCore.App" RuntimeFrameworkVersion="$(BrowserFrameworkVersion)" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="$(BrowserFrameworkVersion)" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="$(BrowserFrameworkVersion)" PrivateAssets="all" />
+    <ProjectReference Include="../../src/Blazor.WebAssembly.DynamicCulture/Blazor.WebAssembly.DynamicCulture.csproj" />
+  </ItemGroup>
+</Project>

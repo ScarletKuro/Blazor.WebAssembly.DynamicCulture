@@ -1,8 +1,5 @@
 ﻿#if NET8_0_OR_GREATER
 using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
 using System.Runtime.InteropServices.JavaScript;
 using System.Threading.Tasks;
 
@@ -10,54 +7,26 @@ namespace Blazor.WebAssembly.DynamicCulture.Loader.Interop
 {
     internal partial class SatelliteAssemblies
     {
-        public virtual async ValueTask LoadCurrentCultureResourcesAsync(IEnumerable<CultureInfo> cultureInfos)
+        private const string ModuleName = "Blazor.WebAssembly.DynamicCulture.Loader";
+
+        private static async Task LoadCultureResourcesAsync(string[] culturesToLoad)
         {
-            // TODO: In .NET11 there is already another change to WebAssemblyCultureProvider, so expecting another break in the future.
-#if NET10_0_OR_GREATER
-            // Technically, Microsoft already should have loaded those cultures via WebAssemblyCultureProvider https://github.com/dariatiurina/aspnetcore/blob/3801203e0cd7ba5fcb4c7bd3ea9b99b1590e9b2d/src/Components/WebAssembly/WebAssembly/src/Hosting/WebAssemblyCultureProvider.cs#L34
-            var excludeCultures = GetExcludedCultures();
-#else
-            string[] excludeCultures = Array.Empty<string>();
-#endif
-            List<string> culturesToLoad = GetCultures(cultureInfos, excludeCultures.ToArray());
-            if (culturesToLoad.Count == 0)
+            // Resolve against the application's base URI, including applications in a subdirectory.
+            if (!OperatingSystem.IsBrowser())
             {
-                return;
+                throw new PlatformNotSupportedException("Satellite assemblies can only be loaded in the browser.");
             }
 
-            await LoadSatelliteAssemblies(culturesToLoad.ToArray());
+            using var document = JSHost.GlobalThis.GetPropertyAsJSObject("document")!;
+            var moduleUrl = new Uri(new Uri(document.GetPropertyAsString("baseURI")!),
+                "_content/Blazor.WebAssembly.DynamicCulture.Loader/SatelliteAssemblies.js");
+            using var module = await JSHost.ImportAsync(ModuleName, moduleUrl.AbsoluteUri);
+            using var runtime = JSHost.DotnetInstance;
+            await LoadSatelliteAssemblies(runtime, culturesToLoad);
         }
 
-        private static HashSet<string> GetExcludedCultures()
-        {
-            var excludedCultures = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
-            
-            // Add CurrentUICulture and all its parents
-            AddCultureWithParents(excludedCultures, CultureInfo.CurrentUICulture);
-            
-            // Add CurrentCulture and all its parents (if different from CurrentUICulture)
-            AddCultureWithParents(excludedCultures, CultureInfo.CurrentCulture);
-            
-            return excludedCultures;
-        }
-
-        private static void AddCultureWithParents(HashSet<string> cultures, CultureInfo culture)
-        {
-            while (!ReferenceEquals(culture, CultureInfo.InvariantCulture))
-            {
-                cultures.Add(culture.Name);
-
-                if (ReferenceEquals(culture.Parent, culture))
-                {
-                    break;
-                }
-
-                culture = culture.Parent;
-            }
-        }
-
-        [JSImport("INTERNAL.loadSatelliteAssemblies")]
-        public static partial Task LoadSatelliteAssemblies(string[] culturesToLoad);
+        [JSImport("loadSatelliteAssemblies", ModuleName)]
+        private static partial Task LoadSatelliteAssemblies(JSObject runtime, string[] culturesToLoad);
     }
 }
 #endif

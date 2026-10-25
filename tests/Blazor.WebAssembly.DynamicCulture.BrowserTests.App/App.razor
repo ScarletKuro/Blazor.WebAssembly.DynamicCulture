@@ -1,0 +1,35 @@
+@using System.Globalization
+@using Blazor.WebAssembly.DynamicCulture.Services
+@implements IDisposable
+@inject ILocalizationService Localization
+@inject Blazor.WebAssembly.DynamicCulture.LocalizationManager.LocalizationLocalStorageManager Storage
+
+<h1 id="ready">Ready</h1>
+<p id="greeting">@BrowserTestApi.Resource(_uiCulture.Name)</p>
+<p id="culture">@CultureInfo.CurrentCulture.Name</p>
+<p id="ui-culture">@_uiCulture.Name</p>
+@foreach (var culture in new[] { "en-US", "cs-CZ", "fr-CA" })
+{
+    <button @onclick="() => Select(culture)">@culture</button>
+}
+
+@code {
+    private CultureInfo _uiCulture = CultureInfo.CurrentUICulture;
+
+    protected override void OnInitialized() => Localization.LanguageChanged += OnLanguageChanged;
+
+    private void OnLanguageChanged(object? sender, CultureInfo culture)
+    {
+        _uiCulture = culture;
+        _ = InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose() => Localization.LanguageChanged -= OnLanguageChanged;
+
+    private async Task Select(string culture)
+    {
+        await BrowserTestApi.SelectAndLoad(culture);
+        await Storage.SetBlazorCultureAsync(culture);
+        Localization.InvokeLanguageChanged(CultureInfo.GetCultureInfo(culture));
+    }
+}

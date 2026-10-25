@@ -350,3 +350,4 @@ __pycache__/
 
 # Generated JavaScript modules
 /src/Blazor.WebAssembly.DynamicCulture/wwwroot/*.js
+/src/Blazor.WebAssembly.DynamicCulture.Loader/wwwroot/*.js

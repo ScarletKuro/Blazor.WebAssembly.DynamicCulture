@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head><base href="/" /><meta charset="utf-8" /></head>
+<body>
+    <div id="app">Loading...</div>
+    <script src="browser-tests.js"></script>
+    <script src="_framework/blazor.webassembly.js" autostart="false"></script>
+    <script>
+        Blazor.start({
+            applicationCulture: new URLSearchParams(location.search).get("startup") || "en-US",
+            configureRuntime: runtime => runtime.withConfig({
+                enableDownloadRetry: false,
+                loadAllSatelliteResources: new URLSearchParams(location.search).get("native") === "true"
+            })
+        }).catch(error => browserTests.fail(String(error)));
+    </script>
+</body>
+</html>
