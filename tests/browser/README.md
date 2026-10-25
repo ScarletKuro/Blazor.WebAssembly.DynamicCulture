@@ -32,4 +32,24 @@ Run `npm run typecheck` from `tests/browser` for strict type checking of the ada
 bun test ./tests/browser/satellite-loader.test.ts
 ```
 
+## Managed browser coverage
+
+CI runs the ordinary compatibility suite, then runs the same suite with managed coverage for every matrix entry. Run the coverage suite locally from the repository root:
+
+```powershell
+pwsh ./scripts/Test-BrowserCoverage.ps1
+# Or select a subset:
+pwsh ./scripts/Test-BrowserCoverage.ps1 -TargetFrameworks net6.0,net10.0
+```
+
+The script restores the pinned Coverlet console tool from `dotnet-tools.json` and builds the fixture with `WasmEnableWebcil=false`. Coverlet instruments only copies of the two libraries in the fixture's output directory. A test-only boot resource callback serves these PE files, bypassing the original files' integrity hashes, while the rest of the runtime boot process remains unchanged. The normal compatibility run continues to exercise the SDK's default assembly format and integrity checks.
+
+After each test, the fixture exports Coverlet's real managed hit counters through JS interop. Playwright merges them into the host's hit files using [Coverlet's tracker format](https://github.com/coverlet-coverage/coverlet/blob/v10.0.0/src/coverlet.core/Instrumentation/ModuleTrackerTemplate.cs); Coverlet then generates Cobertura and restores the instrumented copies. The exporter and boot override exist only in the test application. Missing instrumentation fails the tests. Collecting before the saved-language test reloads the page preserves counters from both browser sessions. Coverage collection skips tests that were deliberately skipped without starting a runtime.
+
+Reports are saved to `artifacts/coverage/browser/<tfm>.cobertura.xml`. Coverage-run diagnostics have a separate `artifacts/browser/<tfm>/coverage/` directory. The final CI job collects these reports, desktop managed coverage, and coverage for all four TypeScript modules. It verifies at least 95% combined production line coverage, with an 85% floor for the critical host/interop files, then uploads all reports to Codecov together. The verification counts each source line once across runtimes and checks for missing critical files. Generated files under `obj` have no repository source and are omitted from this local production-source calculation.
+
+Run `pwsh ./scripts/Verify-Coverage.ps1 -ReportDirectory <directory>` against a directory containing all managed `*.cobertura.xml` reports and Bun's `lcov.info`. The TypeScript suite must run from the repository root so its report uses unambiguous paths for both libraries. Rebuild the fixture normally before a later ordinary compatibility run.
+
+The remaining uncovered statements include non-browser platform guards, defensive module-null paths, and the closing sequence points after `WebAssemblyHost.RunAsync`, which normally never completes. They remain visible in reports.
+
 The modern adapter still uses the runtime's internal satellite-loading API. It gives each operation private asset state and restores the framework's manifest synchronously after the native loader captures the assets. Tests against each runtime deliberately exercise this boundary so a future schema or scheduling change becomes an actionable CI failure. Successful per-asset promises are retained; failed operations are removed for retry, and outstanding registrations are drained before reporting an error. A managed lock serializes callers, including the legacy .NET 6/7 two-stage download/read API.

@@ -17,6 +17,7 @@ describe("isolated satellite downloads", () => {
         try {
             host.Blazor = { _internal: { getSatelliteAssemblies: (cultures: string[]) => cultures, readSatelliteAssemblies: () => "first" } };
             initializeLegacy();
+            expect(host.BlazorDynamicCultureLoader.getSatelliteAssemblies(["fr"])).toEqual(["fr"]);
             const boundRead = host.BlazorDynamicCultureLoader.readSatelliteAssemblies.bind(host.BlazorDynamicCultureLoader);
             expect(boundRead()).toBe("first");
             host.Blazor._internal.readSatelliteAssemblies = () => "second";
@@ -32,7 +33,7 @@ describe("isolated satellite downloads", () => {
     test("preserves framework assets, including responses consumed by a previous native load", async () => {
         const response = new Response("satellite");
         await response.arrayBuffer();
-        const asset = { name: "Translations.wasm", hash: "hash", virtualPath: "Translations.dll", pendingDownloadInternal: { response }, buffer: new ArrayBuffer(1) };
+        const asset = { name: "Translations.wasm", hash: "hash", virtualPath: "Translations.dll", pendingDownload: Promise.resolve(response), pendingDownloadInternal: { response }, buffer: new ArrayBuffer(1) };
         const satellites = { fr: [asset] };
         let calls = 0;
         const instance = runtime(satellites, async (isolated, cultures) => {
@@ -50,6 +51,22 @@ describe("isolated satellite downloads", () => {
         expect(calls).toBe(1);
         expect(asset.pendingDownloadInternal.response).toBe(response);
         expect(instance.getConfig().resources.satelliteResources).toBe(satellites);
+    });
+
+    test("does not call the native loader when resources or satellites are absent", async () => {
+        for (const config of [{}, { resources: {} }]) {
+            const instance = {
+                getConfig: () => config,
+                INTERNAL: { loadSatelliteAssemblies: () => { throw new Error("No satellites exist"); } }
+            };
+            await loadSatelliteAssemblies(instance, ["fr"]);
+        }
+    });
+
+    test("empty cultures and empty manifests do not call the native loader", async () => {
+        const instance = runtime({ fr: [], en: {} }, () => { throw new Error("No assets requested"); });
+        await loadSatelliteAssemblies(instance, []);
+        await loadSatelliteAssemblies(instance, ["fr", "en", "missing"]);
     });
 
     test("coalesces concurrent calls and keeps runtime instances independent", async () => {

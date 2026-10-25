@@ -7,6 +7,7 @@
     <script src="_framework/blazor.webassembly.js" autostart="false"></script>
     <script>
         Blazor.start({
+            loadBootResource: browserTests.loadBootResource,
             applicationCulture: new URLSearchParams(location.search).get("startup") || "en-US",
             configureRuntime: runtime => runtime.withConfig({
                 enableDownloadRetry: false,

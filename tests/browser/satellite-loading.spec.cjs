@@ -1,13 +1,16 @@
 const { test, expect } = require("@playwright/test");
 const diagnostics = new WeakMap();
+const coverage = require("./managed-coverage.cjs");
 
-test.beforeEach(({ page }) => {
+test.beforeEach(async ({ page }) => {
+    await coverage.prepare(page);
     const errors = [];
     diagnostics.set(page, errors);
     page.on("pageerror", error => errors.push(error.message));
 });
 
 test.afterEach(async ({ page }, testInfo) => {
+    if (testInfo.status === "skipped") return;
     const state = await page.evaluate(() => globalThis.browserTests).catch(() => null);
     await testInfo.attach("satellite-state", { body: JSON.stringify({ state, pageErrors: diagnostics.get(page) }, null, 2), contentType: "application/json" });
     expect(diagnostics.get(page)).toEqual([]);
@@ -19,12 +22,35 @@ test.afterEach(async ({ page }, testInfo) => {
         expect(state.runtime).toBe(`.NET ${framework.version}`);
         expect(state.frameworks).toEqual({ loader: `.NETCoreApp,Version=v${major}.0`, main: `.NETCoreApp,Version=v${major}.0` });
     }
+    await coverage.collect(page);
 });
 
 async function start(page, query = "") {
     await page.goto("/?" + query);
     await expect(page.locator("#ready")).toBeVisible();
 }
+
+for (const mode of ["run-loader", "run-loader-list", "run-dynamic", "run-middleware"]) {
+    test(`${mode} starts the host with loaded translations`, async ({ page }) => {
+        await start(page, `mode=${mode}`);
+        for (const culture of ["en-US", "cs-CZ"]) {
+            expect(await page.evaluate(culture => DotNet.invokeMethodAsync("DynamicCultureBrowserTests", "Resource", culture), culture)).toBe(culture);
+        }
+        if (mode === "run-middleware") {
+            await expect(page.locator("#greeting")).toHaveText("cs-CZ");
+        }
+    });
+}
+
+test("empty culture inputs are no-ops and null lists are rejected", async ({ page }) => {
+    const requests = [];
+    page.on("request", request => { if (/DynamicCultureBrowserTests\.resources/.test(request.url())) requests.push(request.url()); });
+    await start(page, "mode=none");
+    const before = requests.length;
+    await page.evaluate(() => DotNet.invokeMethodAsync("DynamicCultureBrowserTests", "ValidateEmptyInputs"));
+    expect(requests).toHaveLength(before);
+    expect(await page.evaluate(() => DotNet.invokeMethodAsync("DynamicCultureBrowserTests", "SelectAndLoad", "cs-CZ"))).toBe("cs-CZ");
+});
 
 for (const [name, query, cultures] of [
     ["loads the current culture before RunAsync", "", ["en-US", "cs-CZ"]],
@@ -76,6 +102,7 @@ test("downloads only requested cultures and does not repeat successful library l
 test("resolves the loader module under an application base path", async ({ page }) => {
     await page.route("**/nested/**", async route => {
         const url = new URL(route.request().url());
+        if (url.pathname.includes("/__coverage/")) return route.fallback();
         url.pathname = url.pathname.replace(/^\/nested/, "");
         const response = await route.fetch({ url: url.href });
         if (route.request().isNavigationRequest()) {
@@ -98,6 +125,7 @@ test("switches translations without reloading the page", async ({ page }) => {
     for (const culture of ["en-US", "cs-CZ", "fr-CA", "en-US", "cs-CZ"]) {
         await page.getByRole("button", { name: culture, exact: true }).click();
         await expect(page.locator("#greeting")).toHaveText(culture);
+        await expect(page.locator("#tracked-greeting")).toHaveText(culture);
         await expect(page.locator("#ui-culture")).toHaveText(culture);
     }
 });
@@ -110,6 +138,7 @@ test("restores a saved language and can switch back after reopening", async ({ p
     await expect(page.locator("#greeting")).toHaveText("cs-CZ");
     await page.getByRole("button", { name: "en-US", exact: true }).click();
     await expect(page.locator("#greeting")).toHaveText("en-US");
+    await coverage.collect(page);
     await page.reload();
     await expect(page.locator("#greeting")).toHaveText("en-US");
     await page.getByRole("button", { name: "cs-CZ", exact: true }).click();

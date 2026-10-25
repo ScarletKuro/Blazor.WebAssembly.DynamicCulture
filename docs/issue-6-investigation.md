@@ -6,7 +6,7 @@ Investigation of [issue #6](https://github.com/ScarletKuro/Blazor.WebAssembly.Dy
 
 ## Implemented resolution
 
-The fix on `codex/fix-satellite-loading` removes current-culture exclusions. Requested cultures and their parents are deduplicated with ordinal case-insensitive comparison, serialized through a managed lock, and recorded as loaded only after successful completion. This permits loading the current culture before or after host startup and coalesces overlapping library calls.
+The implementation removes current-culture exclusions. Requested cultures and their parents are deduplicated with ordinal case-insensitive comparison, serialized through a managed lock, and recorded as loaded only after successful completion. This permits loading the current culture before or after host startup and coalesces overlapping library calls.
 
 For .NET 8+, a small JavaScript adapter uses the current runtime instance supplied by `JSHost.DotnetInstance`. It gives the native loader isolated per-asset manifest entries with download state removed, then synchronously restores the framework's manifest after the native call captures those entries. The framework's later host load can therefore use its own responses. Per-asset promises retain successful registrations, remove failures for retry, and drain pending operations before reporting failure. Application base paths are respected when importing the module.
 
@@ -18,7 +18,9 @@ The subsequent cleanup removes the unused custom JS runtime and its element-refe
 
 The tracked browser application references both actual library projects, with concrete browser-runtime and framework-package versions selected from `tests/browser/frameworks.json`. CI validates that the matrix covers both projects' complete TFM lists and runs the same Chromium scenarios for every entry. It checks resource values before `RunAsync`, subsequent loads, notification-driven language changes, storage restoration, fallback, retries, native preloading, subdirectory hosting, and response state. Runtime identity and both library DLL target-framework attributes are asserted to prevent accidental testing of the wrong TFM. See `tests/browser/README.md` for local execution and adding another framework.
 
-Local validation of the implemented fix: 93 Chromium cases passed across `net6.0` (6.0.36), `net7.0` (7.0.20), `net8.0` (8.0.0), `net9.0` (9.0.0), and `net10.0` (10.0.0). The only two skipped cases are the .NET 8+ native-preload configuration test on .NET 6/7. These results supersede the failure matrix below for the fixed implementation; that matrix is retained as historical reproduction evidence.
+Local validation of the implemented fix: 118 Chromium cases passed across `net6.0` (6.0.36), `net7.0` (7.0.20), `net8.0` (8.0.0), `net9.0` (9.0.0), and `net10.0` (10.0.0). The only two skipped cases are the .NET 8+ native-preload configuration test on .NET 6/7. These results supersede the failure matrix below for the fixed implementation; that matrix is retained as historical reproduction evidence.
+
+Subsequent coverage work adds tests for every public `RunWith...` entry point, empty culture inputs, null arguments, and real `LanguageTrackProvider` component refreshes. Every TFM also runs the suite with Coverlet instrumentation of the two library assemblies in the browser. These counters join desktop C# and TypeScript coverage in Codecov, covering the host extensions and both modern and legacy interop paths. See the [coverage instructions](../tests/browser/README.md#managed-browser-coverage) for the collection mechanism and CI thresholds.
 
 ## What actually changed
 

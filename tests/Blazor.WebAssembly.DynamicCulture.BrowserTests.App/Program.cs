@@ -34,6 +34,10 @@ try
     switch (options.Mode)
     {
         case "none":
+        case "run-loader":
+        case "run-loader-list":
+        case "run-dynamic":
+        case "run-middleware":
             break;
         case "middleware":
         case "ui-only":
@@ -73,7 +77,7 @@ try
     }
 
     // Verify that the public loader has completed the requested loads before RunAsync.
-    var resources = options.Mode == "none" || options.Native
+    var resources = options.Mode == "none" || options.Mode.StartsWith("run-") || options.Native
         ? new Dictionary<string, string?>()
         : options.Cultures.Distinct(StringComparer.OrdinalIgnoreCase).ToDictionary(culture => culture, BrowserTestApi.Resource);
     var frameworks = new
@@ -82,7 +86,24 @@ try
         Main = typeof(Blazor.WebAssembly.DynamicCulture.Extensions.WebAssemblyHostExtensions).Assembly.GetCustomAttribute<TargetFrameworkAttribute>()!.FrameworkName
     };
     await js.InvokeVoidAsync("browserTests.beforeRun", resources, RuntimeInformation.FrameworkDescription, frameworks);
-    await host.RunAsync();
+    switch (options.Mode)
+    {
+        case "run-loader":
+            await host.RunWithSatelliteCultureAssembliesAsync(cultures);
+            break;
+        case "run-loader-list":
+            await host.RunWithSatelliteCultureAssembliesAsync(new BrowserCultureList(cultures));
+            break;
+        case "run-dynamic":
+            await host.RunWithCulturesAsync();
+            break;
+        case "run-middleware":
+            await host.RunWithCultureMiddlewareAsync();
+            break;
+        default:
+            await host.RunAsync();
+            break;
+    }
 }
 catch (Exception error)
 {
@@ -97,10 +118,36 @@ public sealed class BrowserTestOptions
     public bool Native { get; set; }
 }
 
+public sealed class BrowserCultureList(IEnumerable<CultureInfo> cultures) : ILocalizationDynamicList
+{
+    public IEnumerable<CultureInfo> GetAvailableCultures() => cultures;
+}
+
 public static class BrowserTestApi
 {
     public static WebAssemblyHost Host { get; set; } = null!;
     private static readonly System.Resources.ResourceManager Resources = new("DynamicCultureBrowserTests.Strings", typeof(BrowserTestApi).Assembly);
+
+    // Coverlet instruments copies in this fixture's bin directory. Export the actual
+    // browser counters to its host process; WASM cannot write the host's hit files.
+    [JSInvokable]
+    public static object[] GetCoverage()
+    {
+        return new[]
+        {
+            typeof(Blazor.WebAssembly.DynamicCulture.Loader.WebAssemblyHostExtensions).Assembly,
+            typeof(Blazor.WebAssembly.DynamicCulture.Extensions.WebAssemblyHostExtensions).Assembly
+        }.Select(assembly =>
+        {
+            var tracker = assembly.GetTypes().Single(type => type.FullName!.StartsWith("Coverlet.Core.Instrumentation.Tracker."));
+            return (object)new
+            {
+                Name = assembly.GetName().Name,
+                HitsFilePath = (string)tracker.GetField("HitsFilePath")!.GetValue(null)!,
+                Hits = (int[])tracker.GetField("HitsArray")!.GetValue(null)!
+            };
+        }).ToArray();
+    }
 
     [JSInvokable]
     public static string? Resource(string culture) => Resources.GetString("Greeting", CultureInfo.GetCultureInfo(culture));
@@ -111,5 +158,25 @@ public static class BrowserTestApi
         CultureInfo.DefaultThreadCurrentCulture = CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.GetCultureInfo(culture);
         await Host.LoadSatelliteCultureAssembliesCultureAsync(new[] { CultureInfo.GetCultureInfo(culture) });
         return Resource(culture);
+    }
+
+    [JSInvokable]
+    public static async Task ValidateEmptyInputs()
+    {
+        await Host.LoadSatelliteCultureAssembliesCultureAsync((IEnumerable<CultureInfo>?)null);
+        await Host.LoadSatelliteCultureAssembliesCultureAsync(Array.Empty<CultureInfo>());
+        await Host.LoadSatelliteCultureAssembliesCultureAsync(new[] { CultureInfo.InvariantCulture });
+        foreach (var run in new[] { false, true })
+        {
+            try
+            {
+                if (run) await Host.RunWithSatelliteCultureAssembliesAsync((ILocalizationDynamicList)null!);
+                else await Host.LoadSatelliteCultureAssembliesCultureAsync((ILocalizationDynamicList)null!);
+                throw new InvalidOperationException("A null culture list was accepted.");
+            }
+            catch (ArgumentNullException error) when (error.ParamName == "localizationDynamicList")
+            {
+            }
+        }
     }
 }
