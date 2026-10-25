@@ -16,14 +16,31 @@ env:
   DOTNET_CLI_TELEMETRY_OPTOUT: true
 
 jobs:
+  version:
+    name: Version from tag
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.get_version.outputs.version }}
+    steps:
+      - name: Validate and extract version from tag
+        id: get_version
+        shell: bash
+        run: |
+          version="$GITHUB_REF_NAME"
+          if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
+            echo "Tag '$version' is not a supported release tag."
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
   tests:
-    uses: ./.github/workflows/continuous.yml
-    secrets:
-      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+    needs: version
+    uses: ./.github/workflows/test.yml
+    secrets: inherit
 
   publish:
     name: publish
-    needs: tests
+    needs: [version, tests]
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -35,13 +52,6 @@ jobs:
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
-
-      - name: Validate tag format
-        run: |
-          if [[ ! "${GITHUB_REF_NAME}" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
-            echo "Tag '${GITHUB_REF_NAME}' is not a supported release tag."
-            exit 1
-          fi
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v6
@@ -56,13 +66,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-nuget-
 
-      - name: Extract version from tag
-        id: get_version
-        run: |
-          VERSION="${GITHUB_REF_NAME}"
-          echo "version=$VERSION"
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-
       - name: Restore
         run: dotnet restore ${{ env.SOLUTION }}
 
@@ -72,13 +75,13 @@ jobs:
           bun-version: 1.4.4
 
       - name: Build
-        run: dotnet build ${{ env.SOLUTION }} -c Release --no-restore /p:Version=${{ steps.get_version.outputs.version }}
+        run: dotnet build ${{ env.SOLUTION }} -c Release --no-restore /p:Version=${{ needs.version.outputs.version }}
 
       - name: Pack Blazor.WebAssembly.DynamicCulture.Loader
-        run: dotnet pack src/Blazor.WebAssembly.DynamicCulture.Loader/Blazor.WebAssembly.DynamicCulture.Loader.csproj -c Release --no-build -o artifacts/packages /p:PackageVersion=${{ steps.get_version.outputs.version }}
+        run: dotnet pack src/Blazor.WebAssembly.DynamicCulture.Loader/Blazor.WebAssembly.DynamicCulture.Loader.csproj -c Release --no-build -o artifacts/packages /p:PackageVersion=${{ needs.version.outputs.version }}
 
       - name: Pack Blazor.WebAssembly.DynamicCulture
-        run: dotnet pack src/Blazor.WebAssembly.DynamicCulture/Blazor.WebAssembly.DynamicCulture.csproj -c Release --no-build -o artifacts/packages /p:PackageVersion=${{ steps.get_version.outputs.version }}
+        run: dotnet pack src/Blazor.WebAssembly.DynamicCulture/Blazor.WebAssembly.DynamicCulture.csproj -c Release --no-build -o artifacts/packages /p:PackageVersion=${{ needs.version.outputs.version }}
 
       - name: Verify package contains generated JavaScript
         shell: pwsh
@@ -102,5 +105,5 @@ jobs:
       - name: Upload packages artifact
         uses: actions/upload-artifact@v7
         with:
-          name: packages-${{ steps.get_version.outputs.version }}
+          name: packages-${{ needs.version.outputs.version }}
           path: artifacts/packages

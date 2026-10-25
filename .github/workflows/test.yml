@@ -1,0 +1,192 @@
+name: test
+
+# Shared checks for branch/PR CI and release tags.
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+env:
+  DOTNET_VERSION: 10.0.x
+  SOLUTION: Blazor.WebAssembly.DynamicCulture.slnx
+  TEST_PROJECT: tests/Blazor.WebAssembly.DynamicCulture.Tests/Blazor.WebAssembly.DynamicCulture.Tests.csproj
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  browser-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v7
+      - name: Discover supported target frameworks
+        id: matrix
+        run: echo "matrix=$(node tests/browser/framework-matrix.cjs)" >> "$GITHUB_OUTPUT"
+
+  browser-tests:
+    name: browser (${{ matrix.tfm }})
+    needs: browser-matrix
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.browser-matrix.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v7
+      - name: Setup .NET SDK and target runtime
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: |
+            ${{ matrix.sdk }}
+            ${{ env.DOTNET_VERSION }}
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: tests/browser/package-lock.json
+      - name: Install browser tests
+        working-directory: tests/browser
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+      - name: Type-check satellite loader
+        working-directory: tests/browser
+        run: npm run typecheck
+      - name: Build browser fixture
+        run: >-
+          dotnet build tests/Blazor.WebAssembly.DynamicCulture.BrowserTests.App
+          -c Release
+          -p:BrowserTargetFramework=${{ matrix.tfm }}
+          -p:BrowserFrameworkVersion=${{ matrix.version }}
+      - name: Test in Chromium
+        working-directory: tests/browser
+        env:
+          BROWSER_TFM: ${{ matrix.tfm }}
+        run: npm test
+      - name: Test with managed browser coverage
+        shell: pwsh
+        run: ./scripts/Test-BrowserCoverage.ps1 -TargetFrameworks '${{ matrix.tfm }}'
+      - name: Upload browser coverage
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage-${{ matrix.tfm }}
+          path: artifacts/coverage/browser/coverage-${{ matrix.tfm }}.cobertura.xml
+          if-no-files-found: error
+      - name: Upload browser diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: browser-${{ matrix.tfm }}
+          path: artifacts/browser/${{ matrix.tfm }}/
+          retention-days: 7
+
+  unit-tests:
+    name: unit-tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v6
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props', '**/*.targets', '**/*.slnx') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Restore
+        run: dotnet restore ${{ env.SOLUTION }}
+
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.4
+
+      - name: Run Bun tests with coverage
+        run: >-
+          bun test --coverage --coverage-reporter=text --coverage-reporter=lcov
+          --coverage-dir artifacts/coverage/bun
+          ./src/Blazor.WebAssembly.DynamicCulture/assets/LocalizationManagers.test.ts
+          ./tests/browser/satellite-loader.test.ts
+
+      - name: Verify whitespace format
+        run: dotnet format whitespace ${{ env.SOLUTION }} --verify-no-changes
+
+      - name: Verify style format
+        run: dotnet format style ${{ env.SOLUTION }} --verify-no-changes
+
+      - name: Build
+        run: dotnet build ${{ env.TEST_PROJECT }} -c Release --no-restore
+
+      - name: Test with coverage
+        run: >-
+          dotnet test ${{ env.TEST_PROJECT }}
+          -c Release
+          --no-build
+          --coverage
+          --coverage-output-format cobertura
+          --results-directory TestResults
+
+      - name: Collect coverage reports
+        if: always()
+        run: |
+          mkdir -p coverage
+          i=0
+          for f in TestResults/*.cobertura.xml; do
+            [ -e "$f" ] || continue
+            i=$((i + 1))
+            cp "$f" "coverage/coverage-$i.cobertura.xml"
+          done
+          test "$i" -gt 0
+          ls -l coverage
+
+      - name: Upload unit and TypeScript coverage
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage-unit-and-typescript
+          path: |
+            coverage/*.cobertura.xml
+            artifacts/coverage/bun/lcov.info
+          if-no-files-found: error
+
+      - name: Upload test results artifact
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-results
+          path: TestResults/**
+          retention-days: 7
+
+  coverage:
+    name: verify-coverage
+    needs: [browser-tests, unit-tests]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Download coverage reports
+        uses: actions/download-artifact@v8
+        with:
+          pattern: coverage-*
+          path: artifacts/coverage/combined
+          merge-multiple: true
+      - name: Verify production source coverage
+        shell: pwsh
+        run: ./scripts/Verify-Coverage.ps1 -ReportDirectory artifacts/coverage/combined
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v7
+        with:
+          directory: artifacts/coverage/combined
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
