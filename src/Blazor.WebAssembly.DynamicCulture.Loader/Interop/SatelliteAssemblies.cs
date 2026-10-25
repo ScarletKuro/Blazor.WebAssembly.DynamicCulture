@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 
 namespace Blazor.WebAssembly.DynamicCulture.Loader.Interop
 {
-    internal partial class SatelliteAssemblies
+    internal sealed partial class SatelliteAssemblies
     {
         private static readonly SemaphoreSlim LoadLock = new(1, 1);
         private static readonly HashSet<string> LoadedCultures = new(StringComparer.OrdinalIgnoreCase);
 
-        public virtual async ValueTask LoadCurrentCultureResourcesAsync(IEnumerable<CultureInfo> cultureInfos)
+        internal async ValueTask LoadCurrentCultureResourcesAsync(IEnumerable<CultureInfo> cultureInfos)
         {
             var cultures = GetCultures(cultureInfos);
             await LoadLock.WaitAsync();

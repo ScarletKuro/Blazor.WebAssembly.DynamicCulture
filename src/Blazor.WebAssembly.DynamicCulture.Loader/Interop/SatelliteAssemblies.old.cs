@@ -13,7 +13,7 @@ namespace Blazor.WebAssembly.DynamicCulture.Loader.Interop
 
         private readonly IJSUnmarshalledRuntime _invoker;
 
-        public SatelliteAssemblies(IJSUnmarshalledRuntime invoker)
+        internal SatelliteAssemblies(IJSUnmarshalledRuntime invoker)
         {
             _invoker = invoker;
         }

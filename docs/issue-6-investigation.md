@@ -12,7 +12,9 @@ For .NET 8+, a small JavaScript adapter uses the current runtime instance suppli
 
 The compatibility suite also exposed a separate .NET 6/7 issue: the framework replaces `readSatelliteAssemblies` after every download, but unmarshalled interop caches the previously bound function. Stable forwarding functions now resolve the latest native read function on every invocation. Module imports use the host's configured `IJSRuntime`, so async completion reaches the correct dispatcher. The same managed lock protects this older two-stage download/read operation.
 
-`SetMiddlewareCulturesAsync` now resolves the selected cultures before loading resources. The public API and selective-loading behavior are retained; consumers do not need to enable native all-resource preloading to use the fix.
+`SetMiddlewareCulturesAsync` now resolves the selected cultures before loading resources. The public host-extension API and selective-loading behavior are retained; consumers do not need to enable native all-resource preloading to use the fix.
+
+The subsequent cleanup removes the unused custom JS runtime and its element-reference converter, together with the copied `WebAssemblyCultureProvider`. The host extension calls the satellite loader directly and preserves the browser platform guard. Blazor's own host retains its ICU validation; the removed copy compared cultures captured immediately before the comparison and could not detect a change.
 
 The tracked browser application references both actual library projects, with concrete browser-runtime and framework-package versions selected from `tests/browser/frameworks.json`. CI validates that the matrix covers both projects' complete TFM lists and runs the same Chromium scenarios for every entry. It checks resource values before `RunAsync`, subsequent loads, notification-driven language changes, storage restoration, fallback, retries, native preloading, subdirectory hosting, and response state. Runtime identity and both library DLL target-framework attributes are asserted to prevent accidental testing of the wrong TFM. See `tests/browser/README.md` for local execution and adding another framework.
 
