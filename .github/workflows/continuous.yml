@@ -74,7 +74,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: coverage-${{ matrix.tfm }}
-          path: artifacts/coverage/browser/${{ matrix.tfm }}.cobertura.xml
+          path: artifacts/coverage/browser/coverage-${{ matrix.tfm }}.cobertura.xml
           if-no-files-found: error
       - name: Upload browser diagnostics
         if: always()
