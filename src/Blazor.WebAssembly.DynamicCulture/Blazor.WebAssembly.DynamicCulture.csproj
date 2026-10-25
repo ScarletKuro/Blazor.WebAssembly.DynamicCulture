@@ -3,6 +3,9 @@
   <PropertyGroup>
     <TargetFrameworks>net6.0;net7.0;net8.0;net9.0;net10.0</TargetFrameworks>
     <Nullable>enable</Nullable>
+    <BunRuntimeDownload>true</BunRuntimeDownload>
+    <BunVersionDownload>1.4.4</BunVersionDownload>
+    <BunRuntimeDirectory>$(MSBuildProjectDirectory)\..\..\artifacts\bun-runtime</BunRuntimeDirectory>
   </PropertyGroup>
   
   <PropertyGroup>
@@ -45,6 +48,16 @@
   <ItemGroup>
     <SupportedPlatform Include="browser" />
     <InternalsVisibleTo Include="Blazor.WebAssembly.DynamicCulture.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Scarlet.Bun.MSBuild" Version="1.4.0" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <BunBeforeStaticWebAssets Include="build">
+      <Arguments>./assets/LocalStorageManager.ts ./assets/NavigatorManager.ts ./assets/QueryManager.ts --outdir ./wwwroot --target browser --format esm --minify</Arguments>
+    </BunBeforeStaticWebAssets>
   </ItemGroup>
 
 </Project>

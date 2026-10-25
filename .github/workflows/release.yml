@@ -58,8 +58,20 @@ jobs:
       - name: Restore
         run: dotnet restore ${{ env.SOLUTION }}
 
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.4
+
+      - name: Run Bun tests
+        working-directory: src/Blazor.WebAssembly.DynamicCulture
+        run: bun test ./assets/LocalizationManagers.test.ts
+
       - name: Build
         run: dotnet build ${{ env.SOLUTION }} -c Release --no-restore /p:Version=${{ steps.get_version.outputs.version }}
+
+      - name: Verify generated JS modules are committed
+        run: git diff --exit-code -- src/Blazor.WebAssembly.DynamicCulture/wwwroot
 
       - name: Test
         run: dotnet test ${{ env.SOLUTION }} -c Release --no-build

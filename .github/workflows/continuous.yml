@@ -40,6 +40,15 @@ jobs:
       - name: Restore
         run: dotnet restore ${{ env.SOLUTION }}
 
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.4
+
+      - name: Run Bun tests with coverage
+        working-directory: src/Blazor.WebAssembly.DynamicCulture
+        run: bun test --coverage --coverage-reporter=text --coverage-reporter=lcov --coverage-dir ../../artifacts/coverage/bun ./assets/LocalizationManagers.test.ts
+
       - name: Verify whitespace format
         run: dotnet format whitespace ${{ env.SOLUTION }} --verify-no-changes
 
@@ -48,6 +57,9 @@ jobs:
 
       - name: Build
         run: dotnet build ${{ env.SOLUTION }} -c Release --no-restore
+
+      - name: Verify generated JS modules are committed
+        run: git diff --exit-code -- src/Blazor.WebAssembly.DynamicCulture/wwwroot
 
       - name: Test with coverage
         run: >-
@@ -71,12 +83,21 @@ jobs:
           test "$i" -gt 0
           ls -l coverage
 
-      - name: Upload coverage to Codecov
+      - name: Upload .NET coverage to Codecov
         uses: codecov/codecov-action@v7
         with:
           directory: ./coverage
           fail_ci_if_error: false
           flags: unittests
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Upload Bun coverage to Codecov
+        uses: codecov/codecov-action@v7
+        with:
+          files: artifacts/coverage/bun/lcov.info
+          disable_search: true
+          flags: bun
+          fail_ci_if_error: false
           token: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Upload test results artifact

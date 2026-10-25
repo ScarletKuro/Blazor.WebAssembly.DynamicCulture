@@ -177,6 +177,25 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
+### Building and Testing
+
+Run the .NET tests from the repository root:
+
+```bash
+dotnet test --solution Blazor.WebAssembly.DynamicCulture.slnx -c Release
+```
+
+The JavaScript modules are authored in `src/Blazor.WebAssembly.DynamicCulture/assets/*.ts`.
+`dotnet build` uses Scarlet.Bun.MSBuild to download Bun 1.4.4 and generate the minified ES modules in `wwwroot/`.
+Commit the generated JavaScript files along with changes to their TypeScript sources; CI verifies they are up to date.
+
+With Bun 1.4.4 installed, run the JavaScript tests and coverage:
+
+```bash
+cd src/Blazor.WebAssembly.DynamicCulture
+bun test --coverage ./assets/LocalizationManagers.test.ts
+```
+
 ## 🙏 Acknowledgments
 
 This library aims to bring the convenience of server-side localization to Blazor WebAssembly applications, making it easier to build multilingual web applications.

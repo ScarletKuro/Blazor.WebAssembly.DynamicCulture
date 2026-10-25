@@ -1,7 +1,1 @@
-﻿export function navigatorLanguage() {
-    return Promise.resolve(navigator.language);
-};
-
-export function navigatorLanguages() {
-    return Promise.resolve(navigator.languages);
-};
+function r(){return Promise.resolve(navigator.language)}function a(){return Promise.resolve(navigator.languages)}export{r as navigatorLanguage,a as navigatorLanguages};
