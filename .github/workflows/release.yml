@@ -8,8 +8,6 @@ on:
 
 permissions:
   contents: read
-  packages: write
-  id-token: write
 
 env:
   DOTNET_VERSION: 10.0.x
@@ -18,9 +16,19 @@ env:
   DOTNET_CLI_TELEMETRY_OPTOUT: true
 
 jobs:
+  tests:
+    uses: ./.github/workflows/continuous.yml
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
   publish:
     name: publish
+    needs: tests
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
 
     steps:
       - name: Checkout
@@ -63,18 +71,8 @@ jobs:
         with:
           bun-version: 1.4.4
 
-      - name: Run Bun tests
-        working-directory: src/Blazor.WebAssembly.DynamicCulture
-        run: bun test ./assets/LocalizationManagers.test.ts
-
-      - name: Test isolated satellite downloads
-        run: bun test ./tests/browser/satellite-loader.test.ts
-
       - name: Build
         run: dotnet build ${{ env.SOLUTION }} -c Release --no-restore /p:Version=${{ steps.get_version.outputs.version }}
-
-      - name: Test
-        run: dotnet test ${{ env.SOLUTION }} -c Release --no-build
 
       - name: Pack Blazor.WebAssembly.DynamicCulture.Loader
         run: dotnet pack src/Blazor.WebAssembly.DynamicCulture.Loader/Blazor.WebAssembly.DynamicCulture.Loader.csproj -c Release --no-build -o artifacts/packages /p:PackageVersion=${{ steps.get_version.outputs.version }}
