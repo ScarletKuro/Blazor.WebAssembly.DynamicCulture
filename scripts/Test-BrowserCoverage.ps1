@@ -34,7 +34,7 @@ try {
         & dotnet tool run coverlet "tests/Blazor.WebAssembly.DynamicCulture.BrowserTests.App/bin/Release/$tfm" `
             --target $node --targetargs 'tests/browser/node_modules/@playwright/test/cli.js test --config tests/browser/playwright.config.cjs' `
             --source-mapping-file "tests/Blazor.WebAssembly.DynamicCulture.BrowserTests.App/bin/Release/$tfm/browser-coverage-source-roots.txt" `
-            --include '[Blazor.WebAssembly.DynamicCulture*]*' --format cobertura --output "artifacts/coverage/browser/$tfm.cobertura.xml"
+            --include '[Blazor.WebAssembly.DynamicCulture*]*' --format cobertura --output "artifacts/coverage/browser/coverage-$tfm.cobertura.xml"
         if ($LASTEXITCODE -ne 0) { throw "Managed browser coverage tests failed for $tfm." }
     }
 }
