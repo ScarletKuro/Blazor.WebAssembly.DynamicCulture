@@ -34,12 +34,11 @@ public class AcceptLanguageHeaderCultureProvider : CultureProvider
 
         if (MaximumAcceptLanguageHeaderValuesToTry > 0)
         {
-            // We take only the first configured number of languages from the header and then order those that we
-            // attempt to parse as a CultureInfo to mitigate potentially spinning CPU on lots of parse attempts.
+            // Limit attempts while preserving the browser's language preference order.
             languages = languages.Take(MaximumAcceptLanguageHeaderValuesToTry);
         }
 
-        var orderedLanguages = languages.OrderByDescending(h => h).Select(x => new StringSegment(x)).ToList();
+        var orderedLanguages = languages.Select(x => new StringSegment(x)).ToList();
 
         if (orderedLanguages.Count > 0)
         {

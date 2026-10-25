@@ -7,6 +7,82 @@ namespace Blazor.WebAssembly.DynamicCulture.Tests;
 public class ProviderCultureTests
 {
     [Fact]
+    public async Task QueryStringCultureProvider_UsesUICultureWhenOnlyUICultureIsPresent()
+    {
+        var module = new TestJsObjectReference().SetResult("getQueryValue", ["ui-culture"], "ja-JP");
+
+        var result = await new QueryStringCultureProvider().DetermineProviderCultureResult(CreateContext(module));
+
+        Assert.NotNull(result);
+        Assert.Equal("ja-JP", Assert.Single(result.Cultures).Value);
+        Assert.Equal("ja-JP", Assert.Single(result.UICultures).Value);
+    }
+
+    [Fact]
+    public async Task QueryStringCultureProvider_UsesCustomKeys()
+    {
+        var module = new TestJsObjectReference()
+            .SetResult("getQueryValue", ["format"], "fr-FR")
+            .SetResult("getQueryValue", ["language"], "ja-JP");
+        var provider = new QueryStringCultureProvider { QueryStringKey = "format", UIQueryStringKey = "language" };
+
+        var result = await provider.DetermineProviderCultureResult(CreateContext(module));
+
+        Assert.NotNull(result);
+        Assert.Equal("fr-FR", Assert.Single(result.Cultures).Value);
+        Assert.Equal("ja-JP", Assert.Single(result.UICultures).Value);
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData(" ")]
+    public async Task QueryStringCultureProvider_DisabledKeysDoNotReadQueryValues(string disabledKey)
+    {
+        var module = new TestJsObjectReference()
+            .SetResult("getQueryValue", [disabledKey], "fr-FR");
+        var provider = new QueryStringCultureProvider { QueryStringKey = disabledKey, UIQueryStringKey = disabledKey };
+
+        Assert.Null(await provider.DetermineProviderCultureResult(CreateContext(module)));
+    }
+
+    [Theory]
+    [InlineData(0, 4)]
+    [InlineData(-1, 4)]
+    [InlineData(3, 3)]
+    public async Task NavigatorProvider_PreservesPreferenceOrderForLanguageLimit(int limit, int expectedCount)
+    {
+        string[] languages = ["en-US", "fr-FR", "ja-JP", "ru-RU"];
+        var module = new TestJsObjectReference().SetResult("navigatorLanguages", [], languages);
+        var provider = new AcceptLanguageHeaderCultureProvider { MaximumAcceptLanguageHeaderValuesToTry = limit };
+
+        var result = await provider.DetermineProviderCultureResult(CreateContext(module));
+
+        Assert.NotNull(result);
+        Assert.Equal(languages.Take(expectedCount), result.Cultures.Select(culture => culture.Value));
+        Assert.Equal(languages.Take(expectedCount), result.UICultures.Select(culture => culture.Value));
+    }
+
+    [Fact]
+    public async Task NavigatorProvider_EmptyPreferencesReturnNoResult()
+    {
+        var module = new TestJsObjectReference().SetResult("navigatorLanguages", [], Array.Empty<string>());
+
+        Assert.Null(await new AcceptLanguageHeaderCultureProvider().DetermineProviderCultureResult(CreateContext(module)));
+    }
+
+    [Fact]
+    public async Task Providers_RejectNullContext()
+    {
+        foreach (var provider in new ICultureProvider[]
+        {
+            new QueryStringCultureProvider(), new LocalStorageCultureProvider(), new AcceptLanguageHeaderCultureProvider()
+        })
+        {
+            await Assert.ThrowsAsync<ArgumentNullException>(() => provider.DetermineProviderCultureResult(null!));
+        }
+    }
+
+    [Fact]
     public async Task QueryStringCultureProvider_ReturnsCultureAndUICultureFromQueryString()
     {
         var module = new TestJsObjectReference()
@@ -84,7 +160,7 @@ public class ProviderCultureTests
         var result = await provider.DetermineProviderCultureResult(CreateContext(module));
 
         Assert.NotNull(result);
-        Assert.Equal(["ja-JP", "en-US"], result.Cultures.Select(culture => culture.Value));
+        Assert.Equal(["en-US", "ja-JP"], result.Cultures.Select(culture => culture.Value));
     }
 
     [Fact]

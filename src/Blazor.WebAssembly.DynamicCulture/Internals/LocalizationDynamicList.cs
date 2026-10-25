@@ -17,7 +17,8 @@ internal class LocalizationDynamicList : ILocalizationDynamicList
     public IEnumerable<CultureInfo>? GetAvailableCultures()
     {
         //Merging lists with no duplicates to make sure to load all supported culture resources just to be sure.
-        var supportedCultures = _localizationDynamicOptions.SupportedCultures?.Union(_localizationDynamicOptions.SupportedUICultures ?? Enumerable.Empty<CultureInfo>());
+        var supportedCultures = (_localizationDynamicOptions.SupportedCultures ?? Enumerable.Empty<CultureInfo>())
+            .Union(_localizationDynamicOptions.SupportedUICultures ?? Enumerable.Empty<CultureInfo>());
 
         return supportedCultures;
     }

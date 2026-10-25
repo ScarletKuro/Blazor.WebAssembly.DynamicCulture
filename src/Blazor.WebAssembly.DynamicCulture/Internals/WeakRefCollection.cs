@@ -22,6 +22,7 @@ internal class WeakRefCollection<T> where T : class
 
     public void ForEach(Action<T> action)
     {
+        var elements = new List<T>();
         lock (_collection)
         {
             SweepGarbageCollectedComponents();
@@ -30,9 +31,15 @@ internal class WeakRefCollection<T> where T : class
             {
                 if (cref.TryGetTarget(out var element))
                 {
-                    action(element);
+                    elements.Add(element);
                 }
             }
+        }
+
+        // Rendering can register more components; notify the current snapshot outside the lock.
+        foreach (var element in elements)
+        {
+            action(element);
         }
     }
 

@@ -35,7 +35,7 @@ public static class WebAssemblyHostExtensions
 
     public static async Task RunWithCultureMiddlewareAsync(this WebAssemblyHost host)
     {
-        await host.SetDynamicCulturesAsync();
+        await host.SetMiddlewareCulturesAsync();
         await host.RunAsync();
     }
 
