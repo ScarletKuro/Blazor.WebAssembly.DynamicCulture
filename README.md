@@ -186,7 +186,7 @@ dotnet test --solution Blazor.WebAssembly.DynamicCulture.slnx -c Release
 ```
 
 The JavaScript modules are authored in `src/Blazor.WebAssembly.DynamicCulture/assets/*.ts`.
-`dotnet build` uses Scarlet.Bun.MSBuild to download Bun 1.4.4 and generate the minified ES modules in `wwwroot/`.
+`dotnet build` uses Scarlet.Bun.MSBuild to download Bun 1.4.4 into `tools/` and generate the minified ES modules in `wwwroot/`.
 Commit the generated JavaScript files along with changes to their TypeScript sources; CI verifies they are up to date.
 
 With Bun 1.4.4 installed, run the JavaScript tests and coverage:

@@ -343,3 +343,7 @@ __pycache__/
 
 # Cake - Uncomment if you are using it
 # tools/
+
+# Scarlet.Bun downloaded runtime
+/tools/*
+!/tools/.gitkeep
