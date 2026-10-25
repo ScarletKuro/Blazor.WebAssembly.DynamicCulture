@@ -55,6 +55,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Register the generated modules before they exist on a clean checkout. -->
+    <Content Remove="wwwroot\LocalStorageManager.js;wwwroot\NavigatorManager.js;wwwroot\QueryManager.js" />
+    <Content Include="wwwroot\LocalStorageManager.js;wwwroot\NavigatorManager.js;wwwroot\QueryManager.js" />
+  </ItemGroup>
+
+  <ItemGroup>
     <BunBeforeStaticWebAssets Include="build">
       <Arguments>./assets/LocalStorageManager.ts ./assets/NavigatorManager.ts ./assets/QueryManager.ts --outdir ./wwwroot --target browser --format esm --minify</Arguments>
     </BunBeforeStaticWebAssets>

@@ -347,3 +347,6 @@ __pycache__/
 # Scarlet.Bun downloaded runtime
 /tools/*
 !/tools/.gitkeep
+
+# Generated JavaScript modules
+/src/Blazor.WebAssembly.DynamicCulture/wwwroot/*.js

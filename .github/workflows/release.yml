@@ -70,9 +70,6 @@ jobs:
       - name: Build
         run: dotnet build ${{ env.SOLUTION }} -c Release --no-restore /p:Version=${{ steps.get_version.outputs.version }}
 
-      - name: Verify generated JS modules are committed
-        run: git diff --exit-code -- src/Blazor.WebAssembly.DynamicCulture/wwwroot
-
       - name: Test
         run: dotnet test ${{ env.SOLUTION }} -c Release --no-build
 
@@ -81,6 +78,10 @@ jobs:
 
       - name: Pack Blazor.WebAssembly.DynamicCulture
         run: dotnet pack src/Blazor.WebAssembly.DynamicCulture/Blazor.WebAssembly.DynamicCulture.csproj -c Release --no-build -o artifacts/packages /p:PackageVersion=${{ steps.get_version.outputs.version }}
+
+      - name: Verify package contains generated JavaScript
+        shell: pwsh
+        run: ./scripts/Verify-PackageAssets.ps1
 
       - name: List generated packages
         run: ls -lh artifacts/packages
