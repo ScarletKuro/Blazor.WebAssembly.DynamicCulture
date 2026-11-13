@@ -22,6 +22,10 @@ Local validation of the implemented fix: 118 Chromium cases passed across `net6.
 
 Subsequent coverage work adds tests for every public `RunWith...` entry point, empty culture inputs, null arguments, and real `LanguageTrackProvider` component refreshes. Every TFM also runs the suite with Coverlet instrumentation of the two library assemblies in the browser. These counters join desktop C# and TypeScript coverage in Codecov, covering the host extensions and both modern and legacy interop paths. See the [coverage instructions](../tests/browser/README.md#managed-browser-coverage) for the collection mechanism and CI thresholds.
 
+### .NET 11 follow-up (November 13, 2026)
+
+With SDK 11.0.100 and browser runtime 11.0.0, all 24 compatibility cases pass, and all 24 pass again with managed browser coverage enabled. No additional runtime workaround is required. The [.NET 11 satellite loader](https://github.com/dotnet/runtime/blob/v11.0.0/src/mono/browser/runtime/satelliteAssemblies.ts) is identical to its .NET 10.0.0 counterpart: it still captures shared mutable asset entries synchronously. The existing adapter's isolation and manifest restoration therefore remain necessary and compatible. Both libraries now target `net11.0`, and the shared CI matrix runs the same compatibility and coverage checks for that target on branch builds and releases.
+
 ## What actually changed
 
 The decisive change is dotnet/runtime commit [`6df065d5668e74dbc52427e36713a72677d62092`](https://github.com/dotnet/runtime/commit/6df065d5668e74dbc52427e36713a72677d62092), merged June 13, 2025, for [PR #116300, Bundler friendly output](https://github.com/dotnet/runtime/pull/116300). It changed boot resources from dictionaries of hashes to arrays of asset objects.

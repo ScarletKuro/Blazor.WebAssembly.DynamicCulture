@@ -59,7 +59,7 @@ export async function loadSatelliteAssemblies(runtime: SatelliteRuntime, culture
         }
 
         const entries = satellites[culture];
-        // .NET 8/9 use dictionaries; .NET 10 uses arrays of mutable download assets.
+        // .NET 8/9 use dictionaries; .NET 10+ uses arrays of mutable download assets.
         const assets: Array<[string, SatelliteAsset | string]> = Array.isArray(entries)
             ? entries.map(asset => [asset.name, asset])
             : Object.entries(entries);

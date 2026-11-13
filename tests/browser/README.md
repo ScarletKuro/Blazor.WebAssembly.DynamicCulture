@@ -2,9 +2,9 @@
 
 These tests build a real Blazor WebAssembly application referencing both library projects and run it in Chromium. Resource values must be correct before `RunAsync`, after startup, and after language switching. Tests also reject consumed-response reads and unhandled JavaScript exceptions, and verify the actual runtime and the target-framework attributes of both loaded library DLLs.
 
-`frameworks.json` is the compatibility matrix. `framework-matrix.cjs` compares it with both libraries' `TargetFrameworks`; CI fails if any supported TFM is missing. To add .NET 11, add its TFM to both libraries and an entry with its SDK and concrete package/runtime version to `frameworks.json`. The same tests run without another workflow job or a new sample application. Update the workflow's common SDK version when the solution requires a newer compiler.
+`frameworks.json` is the compatibility matrix, currently covering .NET 6 through .NET 11. `framework-matrix.cjs` compares it with both libraries' `TargetFrameworks`; CI fails if any supported TFM is missing. To add another framework, add its TFM to both libraries and an entry with its SDK and concrete package/runtime version to `frameworks.json`. The same tests run without another workflow job or a new sample application. Update the workflows' common SDK version when the solution requires a newer compiler. The unit-test job also installs .NET 10 to run its desktop test project.
 
-Install a .NET SDK that can build the solution (currently .NET 10), the ASP.NET Core runtime for the selected TFM, Node 24, and Chromium:
+Install a .NET SDK that can build the solution (currently .NET 11), the ASP.NET Core runtime for the selected TFM, Node 26, and Chromium:
 
 ```sh
 cd tests/browser
@@ -33,6 +33,8 @@ bun test ./tests/browser/satellite-loader.test.ts
 ```
 
 The modern adapter still uses the runtime's internal satellite-loading API. It gives each operation private asset state and restores the framework's manifest synchronously after the native loader captures the assets. Tests against each runtime deliberately exercise this boundary so a future schema or scheduling change becomes an actionable CI failure. Successful per-asset promises are retained; failed operations are removed for retry, and outstanding registrations are drained before reporting an error. A managed lock serializes callers, including the legacy .NET 6/7 two-stage download/read API.
+
+.NET 11.0.0 retains the same [native satellite loader](https://github.com/dotnet/runtime/blob/v11.0.0/src/mono/browser/runtime/satelliteAssemblies.ts) as .NET 10.0.0: it captures mutable assets from the shared manifest before awaiting downloads. The existing isolation adapter therefore applies without a new runtime-specific workaround. The `net11.0` matrix entry verifies both libraries' actual target-framework attributes and the browser runtime version, alongside every compatibility and managed-coverage scenario.
 
 ## Managed browser coverage
 
